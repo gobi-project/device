@@ -1,8 +1,9 @@
-CONTIKI_PROJECT = device
-
-CONTIKI = ../../contiki
 LIBMC1322X = ../../libmc1322x
+CONTIKI = ../../contiki
+
+CONTIKI_PROJECT = device
 TARGET = econotag
+
 all: $(CONTIKI_PROJECT) copy
 
 WITH_UIP6=1
