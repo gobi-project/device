@@ -57,6 +57,10 @@ PROCESS_THREAD(server_firmware, ev, data) {
 
   PRINTF("Firmware gestartet.\n");
 
+  uip_ipaddr_t *addr = uip_ds6_defrt_choose();
+  PRINTF("Pointer: %p\n", addr);
+  PRINT6ADDR(addr);
+
   while(1) {
     PROCESS_WAIT_EVENT();
 
