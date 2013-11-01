@@ -4,6 +4,9 @@ HEADERS =
 
 all: blaster
 
+depend:
+	sudo apt-get install uuid-dev libqrencode-dev
+
 %.o: %.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
 
@@ -13,4 +16,4 @@ blaster: main.o
 clean:
 	rm *.o blaster
 
-.PHONY: all clean
+.PHONY: all depend clean
