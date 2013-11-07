@@ -57,14 +57,14 @@ PROCESS_THREAD(server_firmware, ev, data) {
 
   PRINTF("Firmware gestartet.\n");
 
-  uip_ipaddr_t *addr = uip_ds6_defrt_choose();
-  PRINTF("Pointer: %p\n", addr);
-  PRINT6ADDR(addr);
-
   while(1) {
     PROCESS_WAIT_EVENT();
 
     if (ev == sensors_event && data == &button_sensor) {
+      uip_ipaddr_t *addr = uip_ds6_defrt_choose();
+      PRINTF("Pointer: %p\n", addr);
+      PRINT6ADDR(addr);
+
       #if DEBUG
         PRINTF("\n");
         PRINTF("Speicheraufteilung (Konfiguration in contiki/cpu/mc1322x/mc1322x.lds)\n");
