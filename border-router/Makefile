@@ -8,7 +8,7 @@ all: $(CONTIKI_PROJECT)
 
 WITH_UIP6=1
 UIP_CONF_IPV6=1
-CFLAGS+= -DUIP_CONF_IPV6_RPL
+CFLAGS += -DUIP_CONF_IPV6_RPL
 
 #linker optimizations
 SMALL=1
@@ -36,22 +36,28 @@ else ifneq ($(WITH_WEBSERVER), 0)
 APPS += $(WITH_WEBSERVER)
 CFLAGS += -DWEBSERVER=2
 endif
+CFLAGS += -DRADIODEBUGLED=1
 
 ifeq ($(PREFIX),)
  PREFIX = aaaa::1/64
 endif
 
 clear:
+	-rm $(CONTIKI_PROJECT)_e_$(TARGET).bin
+	-rm $(CONTIKI_PROJECT)_e_$(TARGET).txt
+	-rm qr-code.pbm
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 erase
 
 upload:
+	../blaster/blaster 22 -t < $(CONTIKI_PROJECT)_$(TARGET).bin > \
+	$(CONTIKI_PROJECT)_e_$(TARGET).bin 2> \
+	$(CONTIKI_PROJECT)_e_$(TARGET).txt \
+	
 	$(LIBMC1322X)/tools/mc1322x-load \
 	-f $(LIBMC1322X)/tests/flasher_$(TARGET).bin \
-	-s $(CONTIKI_PROJECT)_$(TARGET).bin 0x1e000,0xB160B162,0x2200B160 \
+	-s $(CONTIKI_PROJECT)_e_$(TARGET).bin \
 	-c 'sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 reset' \
-	-t /dev/ttyUSB1 -e \
-	
-	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 reset
+	-t /dev/ttyUSB1 -l -e
 
 $(CONTIKI)/tools/tunslip6:	$(CONTIKI)/tools/tunslip6.c
 	(cd $(CONTIKI)/tools && $(MAKE) tunslip6)
