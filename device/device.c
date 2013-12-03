@@ -65,7 +65,17 @@ PROCESS_THREAD(server_firmware, ev, data) {
       PRINTF("Pointer: %p\n", addr);
       PRINT6ADDR(addr);
 
-      // ff01::1
+      // ff38:0040:PPPP:PPPP:PPPP:PPPP::
+
+      struct uip_udp_conn udp_conn;
+      uint8_t addr1[16] = {0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc6, 0x46, 0x19, 0xff, 0xfe, 0x51, 0xdc, 0xe2};
+      uip_ipaddr_copy(&(udp_conn.ripaddr), (uip_ipaddr_t *) addr1);
+      udp_conn.rport = UIP_HTONS(5684);
+      udp_conn.lport = UIP_HTONS(5684);
+      udp_conn.ttl = UIP_TTL;
+
+      uint8_t hello_request[3] = {0x50, 0x03, 0x00};
+      uip_udp_packet_send(&udp_conn, hello_request, 3);
 
       #if DEBUG
         PRINTF("\n");
