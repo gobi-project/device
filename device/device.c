@@ -65,6 +65,8 @@ PROCESS_THREAD(server_firmware, ev, data) {
       PRINTF("Pointer: %p\n", addr);
       PRINT6ADDR(addr);
 
+      // ff01::1
+
       #if DEBUG
         PRINTF("\n");
         PRINTF("Speicheraufteilung (Konfiguration in contiki/cpu/mc1322x/mc1322x.lds)\n");
