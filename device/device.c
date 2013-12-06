@@ -64,13 +64,14 @@ PROCESS_THREAD(server_firmware, ev, data) {
       uip_ipaddr_t *addr = uip_ds6_defrt_choose();
 
       if (addr != 0) {
-        PRINTF("Pointer: %p\n", addr);
+        PRINTF("Gateway: ");
         PRINT6ADDR(addr);
+        PRINTF("\n");
 
         struct uip_udp_conn *udp_conn;
-        uint8_t addr1[16] = {0x20, 0x01, 0x0d, 0xb8, 0x01, 0x00, 0xf1, 0x01, 0xcd, 0x23, 0x7e, 0x71, 0xd4, 0x27, 0xee, 0x09};
-        //uint8_t addr1[16] = {0xff, 0x38, 0x00, 0x40, 0x20, 0x01, 0x0d, 0xb8, 0x01, 0x00, 0xf1, 0x01, 0x00, 0x00, 0x00, 0x01};
-        udp_conn = uip_udp_new((uip_ipaddr_t *) addr1, UIP_HTONS(5684));
+        uint8_t zaddr[16];
+        uiplib_ipaddrconv ("aaaa::1",(uip_ipaddr_t *) &zaddr);
+        udp_conn = uip_udp_new((uip_ipaddr_t *) &zaddr, UIP_HTONS(5684));
         uint8_t hello_request[3] = {0x50, 0x03, 0x00};
         uip_udp_packet_send(udp_conn, hello_request, 3);
         uip_udp_remove(udp_conn);
