@@ -1,15 +1,15 @@
 #include <string.h>
 
-#include <erbium.h>
-#include <er-coap-13.h>
-#include <er-coap-13-separate.h>
-#include <er-coap-13-transactions.h>
+#include <rest-engine.h>
+#include <er-coap.h>
+#include <er-coap-separate.h>
+#include <er-coap-transactions.h>
 
 #include "mc1322x.h"
 #include "clock.h"
 #include "flash-store.h"
 #include "ecc.h"
-#include "er-dtls-13-psk.h"
+#include "er-dtls-psk.h"
 
 void device_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
     const char *uri_path = NULL;
@@ -23,7 +23,7 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
         memcpy(buffer, "/(name | model | uuid | time | psk)", 35);
         REST.set_response_status(response, CONTENT_2_05);
         REST.set_header_content_type(response, TEXT_PLAIN);
-        REST.set_response_payload(response, buffer, 43);
+        REST.set_response_payload(response, buffer, 35);
     } else {
         //*************************************************************************
         //*  DEVICE NAME                                                          *
@@ -82,6 +82,8 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
         }
     }
 }
+// RESOURCE(device, METHOD_GET | HAS_SUB_RESOURCES, "d", "rt=\"device.information\";if=\"core.rp\";ct=42");
+PARENT_RESOURCE(res_device, "rt=\"device.information\";if=\"core.rp\";ct=42", device_handler, NULL, NULL, NULL);
 
 void time_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
     const uint8_t *payload = 0;
@@ -99,3 +101,5 @@ void time_handler(void* request, void* response, uint8_t *buffer, uint16_t prefe
         REST.set_response_payload(response, buffer, 48);
     }
 }
+// RESOURCE(time, METHOD_POST, "time", "rt=\"device.time.update\";if=\"core.b\";ct=0");
+RESOURCE(res_time, "rt=\"device.time.update\";if=\"core.b\";ct=0", NULL, time_handler, NULL, NULL);

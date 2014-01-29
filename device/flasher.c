@@ -1,8 +1,8 @@
 #include <string.h>
 
-#include <erbium.h>
-#include <er-coap-13.h>
-#include <er-coap-13-transactions.h>
+#include <rest-engine.h>
+#include <er-coap.h>
+#include <er-coap-transactions.h>
 
 #include "mc1322x.h"
 
@@ -72,3 +72,5 @@ void flasher_handler(void* request, void* response, uint8_t *buffer, uint16_t pr
         REST.set_response_status(response, CHANGED_2_04);
     }
 }
+//RESOURCE(flasher, METHOD_POST, "f","rt=\"os.update\";if=\"core.b\";ct=0");
+RESOURCE(res_flasher, "rt=\"os.update\";if=\"core.b\";ct=0", NULL, flasher_handler, NULL, NULL);

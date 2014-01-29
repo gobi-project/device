@@ -8,11 +8,8 @@ all: $(CONTIKI_PROJECT) copy
 
 WITH_UIP6=1
 UIP_CONF_IPV6=1
-# WITH_DTLS=1
-WITH_COAP=13
 
 # CFLAGS += -DWITH_DTLS=1
-CFLAGS += -DWITH_COAP=13
 CFLAGS += -DREST=coap_rest_implementation
 CFLAGS += -DUIP_CONF_TCP=0
 #??? CFLAGS += -DDEBUG_PRINT=1
@@ -26,9 +23,9 @@ CFLAGS += -DRADIODEBUGLED=1 # Aktiviert die rote LED bei Datentransfer über 802
 LDFLAGS += "-Wl,-gc-sections"
 
 # zusätzliche Bibliotheken aus $(CONTIKI)/apps
-APPS += er-dtls-13
-APPS += er-coap-13
-APPS += erbium
+APPS += er-dtls
+APPS += rest-engine
+APPS += er-coap
 APPS += flash-store
 APPS += aes
 APPS += ecc

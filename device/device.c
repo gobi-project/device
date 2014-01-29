@@ -1,9 +1,8 @@
-#include "attributes.h"
-#include "flasher.h"
 #include "button-sensor.h"
 #include "leds.h"
 #include "flash-store.h"
 #include "clock.h"
+#include "er-coap-engine.h"
 
 #define DEBUG 1
 
@@ -32,6 +31,10 @@
 PROCESS(server_firmware, "Server Firmware");
 AUTOSTART_PROCESSES(&server_firmware);
 
+extern resource_t res_device;
+extern resource_t res_time;
+extern resource_t res_flasher;
+
 PROCESS_THREAD(server_firmware, ev, data) {
   PROCESS_BEGIN();
   SENSORS_ACTIVATE(button_sensor);
@@ -50,9 +53,9 @@ PROCESS_THREAD(server_firmware, ev, data) {
   leds_on(LEDS_GREEN);
     nvm_init();
     rest_init_engine();
-    rest_activate_resource(&resource_device);
-    rest_activate_resource(&resource_time);
-    rest_activate_resource(&resource_flasher);
+    rest_activate_resource(&res_device, "d");
+    rest_activate_resource(&res_time, "time");
+    rest_activate_resource(&res_flasher, "f");
   leds_off(LEDS_GREEN);
 
   PRINTF("Firmware gestartet.\n");
