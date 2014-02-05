@@ -34,7 +34,7 @@ APPS += ecc
 PROJECT_SOURCEFILES = attributes.c flasher.c
 
 copy:
-#	cp $(CONTIKI_PROJECT)_$(TARGET).bin ../client/$(CONTIKI_PROJECT)_$(TARGET).bin
+	cp $(CONTIKI_PROJECT)_$(TARGET).bin ../codtls-client/$(CONTIKI_PROJECT)_$(TARGET).bin
 
 clear:
 	-rm $(CONTIKI_PROJECT)_e_$(TARGET).bin

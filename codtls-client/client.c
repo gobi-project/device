@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
                 }
                 if (!memcmp("flash", cbuffer, 5)) {
                     uint8_t *ip = get_ip(liste, atoi(cbuffer + 6));
-                    node_firmware(ip, "server_redbee-econotag.bin");
+                    node_firmware(ip, "device_econotag.bin");
                     printf("Flash erfolgreich. Gerät wird neu gestartet ");
                     fflush(stdout);
                     sleep(1);
