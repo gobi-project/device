@@ -16,8 +16,8 @@
 
 #define DEBUG 1
 #define DEBUG_ECC 0
-#define DEBUG_PRF 1
-#define DEBUG_FIN 1
+#define DEBUG_PRF 0
+#define DEBUG_FIN 0
 
 #if DEBUG || DEBUG_ECC || DEBUG_PRF || DEBUG_FIN
     #include <stdio.h>
@@ -134,13 +134,36 @@ void dtls_handshake(uint8_t ip[16]) {
 
     #if DEBUG_ECC
         printf("_S_PUB_KEY-X: ");
-        for (i = 0; i < 8; i++) printf("%08X", htonl(ske->public_key.x[i]));
+        for (i = 0; i < 8; i++) printf("%08X", ntohl(ske->public_key.x[i]));
         printf("\n_S_PUB_KEY-Y: ");
-        for (i = 0; i < 8; i++) printf("%08X", htonl(ske->public_key.y[i]));
+        for (i = 0; i < 8; i++) printf("%08X", ntohl(ske->public_key.y[i]));
         printf("\n");
     #endif
+    uint8_t *bufx;
+    uint8_t *bufy;
+    bufx = (uint8_t *) ske->public_key.x;
+    bufy = (uint8_t *) ske->public_key.y;
+    for (i = 0; i < 16; i++) {
+        bufx[     i] ^= bufx[31 - i];
+        bufx[31 - i] ^= bufx[     i];
+        bufx[     i] ^= bufx[31 - i];
 
+        bufy[     i] ^= bufy[31 - i];
+        bufy[31 - i] ^= bufy[     i];
+        bufy[     i] ^= bufy[31 - i];
+    }
     ecc_ec_mult(ske->public_key.x, ske->public_key.y, private_key, result_x, result_y);
+    bufx = (uint8_t *) result_x;
+    bufy = (uint8_t *) result_y;
+    for (i = 0; i < 16; i++) {
+        bufx[     i] ^= bufx[31 - i];
+        bufx[31 - i] ^= bufx[     i];
+        bufx[     i] ^= bufx[31 - i];
+
+        bufy[     i] ^= bufy[31 - i];
+        bufy[31 - i] ^= bufy[     i];
+        bufy[     i] ^= bufy[31 - i];
+    }
     #if DEBUG_ECC
         printf("SECRET_KEY-X: ");
         for (i = 0; i < 8; i++) printf("%08X", htonl(result_x[i]));
@@ -214,12 +237,23 @@ void dtls_handshake(uint8_t ip[16]) {
     cke.public_key.type = uncompressed;
     #if DEBUG_ECC
         printf("BASE_POINT-X: ");
-        for (i = 0; i < 8; i++) printf("%08X", htonl(base_x[i]));
+        for (i = 8; i > 0; i--) printf("%08X", base_x[i-1]);
         printf("\nBASE_POINT-Y: ");
-        for (i = 0; i < 8; i++) printf("%08X", htonl(base_y[i]));
+        for (i = 8; i > 0; i--) printf("%08X", base_y[i-1]);
         printf("\n");
     #endif
         ecc_ec_mult(base_x, base_y, private_key, cke.public_key.x, cke.public_key.y);
+        bufx = (uint8_t *) cke.public_key.x;
+        bufy = (uint8_t *) cke.public_key.y;
+        for (i = 0; i < 16; i++) {
+            bufx[     i] ^= bufx[31 - i];
+            bufx[31 - i] ^= bufx[     i];
+            bufx[     i] ^= bufx[31 - i];
+
+            bufy[     i] ^= bufy[31 - i];
+            bufy[31 - i] ^= bufy[     i];
+            bufy[     i] ^= bufy[31 - i];
+        }
     #if DEBUG_ECC
         printf("_C_PUB_KEY-X: ");
         for (i = 0; i < 8; i++) printf("%08X", htonl(cke.public_key.x[i]));
