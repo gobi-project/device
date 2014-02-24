@@ -27,7 +27,7 @@
 #define RES_B_ERR_04     0x1D080
 #define LEN_B_ERR_04     51
 #define RES_B_ERR_03     0x1D100
-#define LEN_B_ERR_03     52
+#define LEN_B_ERR_03     53
 #define RES_B_ERR_02     0x1D180
 #define LEN_B_ERR_02     31
 #define RES_B_ERR_01     0x1D200
@@ -101,7 +101,7 @@ int main(int nArgs, char **argv) {
     memcpy(output + RES_B_ERR_05, buffer, LEN_B_ERR_05);
     buffer = "Der PSK wurde schon uebertragen. Eingabe ignoriert.";
     memcpy(output + RES_B_ERR_04, buffer, LEN_B_ERR_04);
-    buffer = "Ohne gedrückten Knopf wird der Pin nicht angenommen.";
+    buffer = "Ohne gedrueckten Knopf wird der Pin nicht angenommen.";
     memcpy(output + RES_B_ERR_03, buffer, LEN_B_ERR_03);
     buffer = "Der PSK passt nicht zum Geraet.";
     memcpy(output + RES_B_ERR_02, buffer, LEN_B_ERR_02);
