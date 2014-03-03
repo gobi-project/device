@@ -181,28 +181,27 @@ void dtls_handshake(uint8_t ip[16]) {
     prf_buffer[1] = 16;
     memcpy(prf_buffer + 2, psk, 16);
     prf_buffer[18] = 0;
-    prf_buffer[19] = 64;
+    prf_buffer[19] = 32;
     memcpy(prf_buffer + 20, result_x, 32);
-    memcpy(prf_buffer + 52, result_y, 32);
-    memcpy(prf_buffer + 84, "master secret", 13);
-    memcpy(prf_buffer + 97, random, 28);                    // Client-Random
-    memcpy(prf_buffer + 125, sh->random.random_bytes, 28);  // Server-Random
+    memcpy(prf_buffer + 52, "master secret", 13);
+    memcpy(prf_buffer + 65, random, 28);                   // Client-Random
+    memcpy(prf_buffer + 93, sh->random.random_bytes, 28);  // Server-Random
     #if DEBUG_PRF
         printf("Seed für Master-Secret:\n    ");
-        for (i = 0; i < 33; i++) printf("%02X", prf_buffer[i]);
+        for (i = 0; i < 20; i++) printf("%02X", prf_buffer[i]);
         printf("\n    ");
-        for (i = 33; i < 65; i++) printf("%02X", prf_buffer[i]);
+        for (i = 20; i < 52; i++) printf("%02X", prf_buffer[i]);
         printf("\n    ");
-        for (i = 65; i < 97; i++) printf("%02X", prf_buffer[i]);
+        for (i = 52; i < 65; i++) printf("%02X", prf_buffer[i]);
         printf("\n    ");
-        for (i = 97; i < 125; i++) printf("%02X", prf_buffer[i]);
+        for (i = 65; i < 93; i++) printf("%02X", prf_buffer[i]);
         printf("\n    ");
-        for (i = 125; i < 153; i++) printf("%02X", prf_buffer[i]);
+        for (i = 93; i < 121; i++) printf("%02X", prf_buffer[i]);
         printf("\n");
     #endif
 
     uint8_t master_secret[48];
-    prf(master_secret, 48, psk, prf_buffer, 153);
+    prf(master_secret, 48, psk, prf_buffer, 121);
     #if DEBUG_PRF
         printf("Master-Secret:\n    ");
         for (i = 0; i < 24; i++) printf("%02X", master_secret[i]);
