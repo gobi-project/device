@@ -7,8 +7,8 @@
 size_t makeClientHello(uint8_t *target, time_t time, uint8_t *random, uint8_t *cookie, uint8_t cookie_len) {
     uint8_t buffer[128];
     ClientHello_t *clientHello = (ClientHello_t *) buffer;
-    clientHello->client_version.major = 3;
-    clientHello->client_version.minor = 3;
+    clientHello->client_version.major = 254;
+    clientHello->client_version.minor = 253;
     clientHello->random.gmt_unix_time = htonl(time);
     memcpy(clientHello->random.random_bytes, random, 28);
 
