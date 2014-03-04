@@ -16,8 +16,8 @@
 
 #define DEBUG 1
 #define DEBUG_ECC 0
-#define DEBUG_PRF 0
-#define DEBUG_FIN 0
+#define DEBUG_PRF 1
+#define DEBUG_FIN 1
 
 #if DEBUG || DEBUG_ECC || DEBUG_PRF || DEBUG_FIN
     #include <stdio.h>
@@ -47,11 +47,15 @@ void dtls_handshake(uint8_t ip[16]) {
     uint8_t message[128];
 
     time_t my_time = time(NULL);
-    uint8_t random[28];
-    random_x(random, 28);
+    uint8_t random[32];
+    random[0] = (my_time >> 24) & 0xFF;
+    random[1] = (my_time >> 16) & 0xFF;
+    random[2] = (my_time >>  8) & 0xFF;
+    random[3] = (my_time >>  0) & 0xFF;
+    random_x(random + 4, 28);
     char buffer[256];
 
-    len = makeClientHello(message, my_time, random, NULL, 0);
+    len = makeClientHello(message, my_time, random + 4, NULL, 0);
     memset(buffer, 0, 256);
     PRINTF("Länge der Anfrage: %u Byte\n", len);
     coap_setPayload(message, len);
@@ -70,7 +74,7 @@ void dtls_handshake(uint8_t ip[16]) {
 
 // --------------------------------------------------------------------------------------------
 
-    len = makeClientHello(message, my_time, random, verify->cookie, verify->cookie_len);
+    len = makeClientHello(message, my_time, random + 4, verify->cookie, verify->cookie_len);
 
     memcpy(handshake_messages + handshake_messages_len, message, len);
     handshake_messages_len += len;
@@ -176,7 +180,7 @@ void dtls_handshake(uint8_t ip[16]) {
 
     ServerHello_t *sh = (ServerHello_t *) getContentData(getContent(buffer, 256, server_hello));
 
-    uint8_t prf_buffer[160];
+    uint8_t prf_buffer[170];
     prf_buffer[0] = 0;
     prf_buffer[1] = 16;
     memcpy(prf_buffer + 2, psk, 16);
@@ -184,8 +188,8 @@ void dtls_handshake(uint8_t ip[16]) {
     prf_buffer[19] = 32;
     memcpy(prf_buffer + 20, result_x, 32);
     memcpy(prf_buffer + 52, "master secret", 13);
-    memcpy(prf_buffer + 65, random, 28);                   // Client-Random
-    memcpy(prf_buffer + 93, sh->random.random_bytes, 28);  // Server-Random
+    memcpy(prf_buffer + 65, random, 32);           // Client-Random
+    memcpy(prf_buffer + 97, &sh->random, 32);      // Server-Random
     #if DEBUG_PRF
         printf("Seed für Master-Secret:\n    ");
         for (i = 0; i < 20; i++) printf("%02X", prf_buffer[i]);
@@ -194,14 +198,14 @@ void dtls_handshake(uint8_t ip[16]) {
         printf("\n    ");
         for (i = 52; i < 65; i++) printf("%02X", prf_buffer[i]);
         printf("\n    ");
-        for (i = 65; i < 93; i++) printf("%02X", prf_buffer[i]);
+        for (i = 65; i < 97; i++) printf("%02X", prf_buffer[i]);
         printf("\n    ");
-        for (i = 93; i < 121; i++) printf("%02X", prf_buffer[i]);
+        for (i = 97; i < 129; i++) printf("%02X", prf_buffer[i]);
         printf("\n");
     #endif
 
     uint8_t master_secret[48];
-    prf(master_secret, 48, prf_buffer, 52, 69);
+    prf(master_secret, 48, prf_buffer, 52, 77);
     #if DEBUG_PRF
         printf("Master-Secret:\n    ");
         for (i = 0; i < 24; i++) printf("%02X", master_secret[i]);
@@ -212,9 +216,9 @@ void dtls_handshake(uint8_t ip[16]) {
 
     memcpy(prf_buffer + 40, master_secret, 48);
     memcpy(prf_buffer + 88, "key expansion", 13);
-    memcpy(prf_buffer + 101, sh->random.random_bytes, 28);
-    memcpy(prf_buffer + 129, random, 28);
-    prf(prf_buffer, 40, prf_buffer + 40, 48, 69);
+    memcpy(prf_buffer + 101, &sh->random, 32);
+    memcpy(prf_buffer + 133, random, 32);
+    prf(prf_buffer, 40, prf_buffer + 40, 48, 77);
     #if DEBUG_PRF
         printf("Key-Block:\n    ");
         for (i = 0; i < 20; i++) printf("%02X", prf_buffer[i]);
