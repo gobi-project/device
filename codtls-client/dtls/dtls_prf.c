@@ -19,16 +19,19 @@
 /* Öffentliche Funktionen -------------------------------------------------- */
 
 void prf(uint8_t *dst, uint8_t len, uint8_t psk[16], uint8_t *seed, uint16_t seed_len) {
+    CMAC_State_t state;
+    aes_cmac_init(&state, psk, 16);
+
     // A(1) generieren
     uint8_t ax[16];
-    memset(ax, 0, 16);
-    aes_cmac(ax, seed, seed_len, psk, 1);
+    aes_cmac_update(&state, seed, seed_len);
+    aes_cmac_finish(&state, ax, 16);
 
     while (len > 0) {
         uint8_t result[16];
-        memset(result, 0, 16);
-        aes_cmac(result, ax, 16, psk, 0);
-        aes_cmac(result, seed, seed_len, psk, 1);
+        aes_cmac_update(&state, ax, 16);
+        aes_cmac_update(&state, seed, seed_len);
+        aes_cmac_finish(&state, result, 16);
         memcpy(dst, result, len < 16 ? len : 16);
 
         // Falls weitere Daten benötigt werden, wird der Pointer und die
@@ -39,8 +42,8 @@ void prf(uint8_t *dst, uint8_t len, uint8_t psk[16], uint8_t *seed, uint16_t see
 
             uint8_t oldA[16];
             memcpy(oldA, ax, 16);
-            memset(ax, 0, 16);
-            aes_cmac(ax, oldA, 16, psk, 1);
+            aes_cmac_update(&state, oldA, 16);
+            aes_cmac_finish(&state, ax, 16);
         } else {
             len = 0;
         }

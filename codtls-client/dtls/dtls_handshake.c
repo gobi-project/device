@@ -282,7 +282,10 @@ void dtls_handshake(uint8_t ip[16]) {
     uint8_t server_finished[12];
 
     memset(finished_source + 63, 0, 16);
-    aes_cmac(finished_source + 63, handshake_messages, handshake_messages_len, psk, 1);
+    CMAC_State_t state;
+    aes_cmac_init(&state, psk, 16);
+    aes_cmac_update(&state, handshake_messages, handshake_messages_len);
+    aes_cmac_finish(&state, finished_source + 63, 16);
     memcpy(finished_source, master_secret, 48);
 
     memcpy(finished_source + 48, "client finished", 15);

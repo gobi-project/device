@@ -56,6 +56,20 @@ void aes_decrypt(uint8_t data[], size_t data_len, uint8_t key[16], uint8_t nonce
   * \param  key         Zeiger auf den 16 Byte langen Schlüssel
   * \param  finish      Falls 1, wird der letzte Block entsprechend CMAC-Vorgabe behandelt
   */
-void aes_cmac(uint8_t mac[16], uint8_t data[], size_t data_len, uint8_t key[16], uint8_t finish);
+
+typedef struct {
+    uint8_t *raw_key;
+    size_t raw_key_length;
+    uint8_t key[16];
+    uint8_t buffer[16];
+    size_t buffer_pos;
+    uint8_t mac[16];
+} CMAC_State_t;
+
+void aes_cmac_init(CMAC_State_t *state, uint8_t *key, size_t raw_key_length);
+
+void aes_cmac_update(CMAC_State_t *state, uint8_t *data, size_t data_len);
+
+void aes_cmac_finish(CMAC_State_t *state, uint8_t *mac, size_t mac_len);
 
 #endif /* __DTLS_CCM__ */
