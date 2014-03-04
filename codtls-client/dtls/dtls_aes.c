@@ -6,7 +6,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-#define DEBUG 1
+#define DEBUG 0
 
 #if DEBUG
     #include <stdio.h>
@@ -57,10 +57,11 @@ void aes_cmac_init(CMAC_State_t *state, uint8_t *key, size_t raw_key_length) {
     }
 
     memset(state->key, 0, 16);
-    EVP_CIPHER_CTX ctx;
-    EVP_CIPHER_CTX_init(&ctx);
-    EVP_EncryptInit(&ctx, EVP_aes_128_cbc(), state->key, NULL);
-    EVP_EncryptUpdate(&ctx, state->key, &cypherLen, key, raw_key_length);
+    aes_cmac_update(state, key, raw_key_length);
+    aes_cmac_finish(state, state->key, 16);
+
+    state->buffer_pos = 0;
+    memset(state->mac, 0, 16);
 
     #if DEBUG
         printf("KeyXX    ");

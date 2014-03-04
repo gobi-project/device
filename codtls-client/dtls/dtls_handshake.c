@@ -201,7 +201,7 @@ void dtls_handshake(uint8_t ip[16]) {
     #endif
 
     uint8_t master_secret[48];
-    prf(master_secret, 48, psk, prf_buffer, 121);
+    prf(master_secret, 48, prf_buffer, 52, 69);
     #if DEBUG_PRF
         printf("Master-Secret:\n    ");
         for (i = 0; i < 24; i++) printf("%02X", master_secret[i]);
@@ -214,7 +214,7 @@ void dtls_handshake(uint8_t ip[16]) {
     memcpy(prf_buffer + 88, "key expansion", 13);
     memcpy(prf_buffer + 101, sh->random.random_bytes, 28);
     memcpy(prf_buffer + 129, random, 28);
-    prf(prf_buffer, 40, psk, prf_buffer + 40, 117);
+    prf(prf_buffer, 40, prf_buffer + 40, 48, 69);
     #if DEBUG_PRF
         printf("Key-Block:\n    ");
         for (i = 0; i < 20; i++) printf("%02X", prf_buffer[i]);
@@ -289,7 +289,7 @@ void dtls_handshake(uint8_t ip[16]) {
     memcpy(finished_source, master_secret, 48);
 
     memcpy(finished_source + 48, "client finished", 15);
-    prf(client_finished, 12, psk, finished_source, 79);
+    prf(client_finished, 12, finished_source, 48, 31);
     #if DEBUG_PRF
         printf("Client Finished: ");
         for (i = 0; i < 12; i++) printf("%02X", client_finished[i]);
@@ -316,7 +316,7 @@ void dtls_handshake(uint8_t ip[16]) {
     paylen += (fin_len + MAC_LEN);
 
     memcpy(finished_source + 48, "server finished", 15);
-    prf(server_finished, 12, psk, finished_source, 79);
+    prf(server_finished, 12, finished_source, 48, 31);
     #if DEBUG_PRF
         printf("Server Finished: ");
         for (i = 0; i < 12; i++) printf("%02X", server_finished[i]);
