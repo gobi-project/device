@@ -6,29 +6,24 @@
 #include <stdint.h>
 
 /**
-  * \brief  Pseudorandom-Funktion basierend auf CMAC
+  * \brief  CMAC based pseudo random function
   *
-  *         Erzeugt len Zufallsbyte an Position dst. Zur Berechnung
-  *         werden seed_len Bytes an Position seed herangezogen.
-  *         Anstatt HMAC wird hier der CMAC verwendet.
+  *         Pseudo random function like used in (D)TLS with
+  *         the difference, that CMAC is used instead of HMAC.
   *
-  *         PRF(secret, label, seed) = P_hash(secret + label + seed)
+  *         PRF(secret, label, seed) = P_CMAC(secret, label + seed)
   *
-  *         P_hash(seed) = CMAC(A(1) + seed) +
-  *                        CMAC(A(2) + seed) +
-  *                        CMAC(A(3) + seed) + ...
+  *         P_CMAC(secret, seed) = CMAC(secret, A(1) + seed) +
+  *                                CMAC(secret, A(2) + seed) +
+  *                                CMAC(secret, A(3) + seed) + ...
   *         A(0) = seed
-  *         A(i) = CMAC(A(i-1))
+  *         A(i) = CMAC(secret, A(i-1))
   *
-  *         CMAC(data) = AES-CMAC(psk, data)
-  *
-  * \param  dst         Zeiger auf die Position an dem die Zufallswerte
-  *                     hinterlegt werden sollen
-  * \param  len         Länge in Byte der gewünschten Zufallsdaten
-  * \param  psk         Für AES-CMAC genutzter Schlüssel
-  * \param  seed        Bytefolge die zur Berechnung der Zufallsdaten
-                        herangezogen wird
-  * \param  seed_len    Länge der Bytefolge
+  * \param  dst         destination where random output is placed
+  * \param  len         length of the needed random output
+  * \param  data        includes the secret concatenated with seed
+  * \param  seed_len    length of the secret
+  * \param  seed_len    length of the seed
   */
 void prf(uint8_t *dst, uint8_t len, uint8_t *data, size_t secret_len, size_t seed_len);
 

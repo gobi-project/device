@@ -37,39 +37,63 @@ void aes_encrypt(uint8_t data[], size_t data_len, uint8_t key[16], uint8_t nonce
   */
 void aes_decrypt(uint8_t data[], size_t data_len, uint8_t key[16], uint8_t nonce[NONCE_LEN]);
 
-/**
-  * \brief  CMAC-Berechnung
-  *
-  *         Berechnet den CMAC der Daten an Position data. Für die
-  *         Berechnung werden data_len Bytes einbezogen. Der CMAC
-  *         wird in 16 Byte Blöcken berechnet. Der letzte Block wird entsprechend
-  *         CMAC-Vorgabe behandelt, falls finish 1 ist. Das 16 Byte lange
-  *         Ergebnis wird an der Position mac hinterlegt. Zu beginn muss der Speicher
-  *         an Position mac genullt sein, falls ein neuer MAC berechnet werden
-  *         soll. Ansonsten werden die Daten an Position MAC als Initialisierungs-
-  *         vektor genutzt, so dass eine MAC-Berechnung jederzeit fortgesetzt
-  *         werden kann.
-  *
-  * \param  mac         Position an der der IV liegt bzw. die MAC abgelegt wird (16 Byte)
-  * \param  data        Position der Daten für die ein MAC berechnet werden soll
-  * \param  data_len    Länge der Daten für die ein MAC berechnet werden soll
-  * \param  key         Zeiger auf den 16 Byte langen Schlüssel
-  * \param  finish      Falls 1, wird der letzte Block entsprechend CMAC-Vorgabe behandelt
-  */
-
 typedef struct {
-    uint8_t *raw_key;
-    size_t raw_key_length;
     uint8_t key[16];
-    uint8_t buffer[16];
-    size_t buffer_pos;
     uint8_t mac[16];
-} CMAC_State_t;
+    uint8_t buf[16];
+    size_t buf_pos;
+} CMAC_CTX;
 
-void aes_cmac_init(CMAC_State_t *state, uint8_t *key, size_t raw_key_length);
+/**
+  * \brief  CMAC initialisation
+  *
+  *         CMAC implementation for
+  *         http://tools.ietf.org/html/rfc4493
+  *         http://tools.ietf.org/html/rfc4494
+  *         http://tools.ietf.org/html/rfc4615
+  *
+  *         Befor calculating a cmac its important to reserve memory for
+  *         CMAC_CTX and call this function die initialize the context
+  *         and include the key.
+  *
+  * \param  ctx        Pointer to CMAC_CTX needed for calculation
+  * \param  key        Pointer to the key
+  * \param  key_len    Length of the key
+  */
+void aes_cmac_init(CMAC_CTX *ctx, uint8_t *key, size_t key_length);
 
-void aes_cmac_update(CMAC_State_t *state, uint8_t *data, size_t data_len);
+/**
+  * \brief  CMAC initialisation
+  *
+  *         CMAC implementation for
+  *         http://tools.ietf.org/html/rfc4493
+  *         http://tools.ietf.org/html/rfc4494
+  *         http://tools.ietf.org/html/rfc4615
+  *
+  *         After initialisation u can call this function as often as needed
+  *         to include more data into cmac calculation.
+  *
+  * \param  ctx        Pointer to CMAC_CTX needed for calculation
+  * \param  data       Pointer to the data
+  * \param  data_len   Length of the data
+  */
+void aes_cmac_update(CMAC_CTX *ctx, uint8_t *data, size_t data_len);
 
-void aes_cmac_finish(CMAC_State_t *state, uint8_t *mac, size_t mac_len);
+/**
+  * \brief  CMAC initialisation
+  *
+  *         CMAC implementation for
+  *         http://tools.ietf.org/html/rfc4493
+  *         http://tools.ietf.org/html/rfc4494
+  *         http://tools.ietf.org/html/rfc4615
+  *
+  *         After update its important to call this function. It will
+  *         output the final cmac to mac.
+  *
+  * \param  ctx        Pointer to CMAC_CTX needed for calculation
+  * \param  data       Pointer to the memory for cmac
+  * \param  data_len   Length of the needed mac
+  */
+void aes_cmac_finish(CMAC_CTX *ctx, uint8_t *mac, size_t mac_len);
 
 #endif /* __DTLS_CCM__ */

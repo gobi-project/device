@@ -40,100 +40,98 @@ void aes_decrypt(uint8_t data[], size_t data_len, uint8_t key[16], uint8_t nonce
     setAuthCode(data, data_len, key, nonce);
 }
 
-void aes_cmac_init(CMAC_State_t *state, uint8_t *key, size_t raw_key_length) {
-    int32_t cypherLen;
+void aes_cmac_init(CMAC_CTX *ctx, uint8_t *key, size_t key_length) {
+    ctx->buf_pos = 0;
+    memset(ctx->mac, 0, 16);
 
-    state->buffer_pos = 0;
-    memset(state->mac, 0, 16);
-
-    if (raw_key_length == 16) {
-        memcpy(state->key, key, 16);
+    if (key_length == 16) {
+        memcpy(ctx->key, key, 16);
         #if DEBUG
             printf("Key16    ");
-            print_hex(state->key, 16);
+            print_hex(ctx->key, 16);
             printf("\n");
         #endif
         return;
     }
 
-    memset(state->key, 0, 16);
-    aes_cmac_update(state, key, raw_key_length);
-    aes_cmac_finish(state, state->key, 16);
+    memset(ctx->key, 0, 16);
+    aes_cmac_update(ctx, key, key_length);
+    aes_cmac_finish(ctx, ctx->key, 16);
 
-    state->buffer_pos = 0;
-    memset(state->mac, 0, 16);
+    ctx->buf_pos = 0;
+    memset(ctx->mac, 0, 16);
 
     #if DEBUG
         printf("KeyXX    ");
-        print_hex(state->key, 16);
+        print_hex(ctx->key, 16);
         printf("\n");
     #endif
 }
 
-void aes_cmac_update(CMAC_State_t *state, uint8_t *data, size_t data_len) {
+void aes_cmac_update(CMAC_CTX *ctx, uint8_t *data, size_t data_len) {
     uint32_t i = 0;
     int32_t cypherLen;
 
-    EVP_CIPHER_CTX ctx;
-    EVP_CIPHER_CTX_init(&ctx);
-    EVP_EncryptInit(&ctx, EVP_aes_128_cbc(), state->key, state->mac);
+    EVP_CIPHER_CTX actx;
+    EVP_CIPHER_CTX_init(&actx);
+    EVP_EncryptInit(&actx, EVP_aes_128_cbc(), ctx->key, ctx->mac);
 
-    while (data_len > 0 && state->buffer_pos < 16) {
-      state->buffer[state->buffer_pos++] = data[i++];
+    while (data_len > 0 && ctx->buf_pos < 16) {
+      ctx->buf[ctx->buf_pos++] = data[i++];
       data_len -= 1;
     }
     if (data_len == 0) return;
 
     if (data_len > 0) {
-      EVP_EncryptUpdate(&ctx, state->mac, &cypherLen, state->buffer, 16);
+      EVP_EncryptUpdate(&actx, ctx->mac, &cypherLen, ctx->buf, 16);
     }
 
     for (; data_len > 16; i+=16) {
-        EVP_EncryptUpdate(&ctx, state->mac, &cypherLen, data + i, 16);
+        EVP_EncryptUpdate(&actx, ctx->mac, &cypherLen, data + i, 16);
         data_len -= 16;
     }
-    memcpy(state->buffer, data + i, data_len);
-    state->buffer_pos = data_len;
+    memcpy(ctx->buf, data + i, data_len);
+    ctx->buf_pos = data_len;
 }
 
-void aes_cmac_finish(CMAC_State_t *state, uint8_t *mac, size_t mac_len) {
+void aes_cmac_finish(CMAC_CTX *ctx, uint8_t *mac, size_t mac_len) {
     uint32_t i;
     int32_t cypherLen;
 
-    EVP_CIPHER_CTX ctx;
-    EVP_CIPHER_CTX_init(&ctx);
-    EVP_EncryptInit(&ctx, EVP_aes_128_cbc(), state->key, NULL);
+    EVP_CIPHER_CTX actx;
+    EVP_CIPHER_CTX_init(&actx);
+    EVP_EncryptInit(&actx, EVP_aes_128_cbc(), ctx->key, NULL);
 
     // Calculate Subkey - BEGIN
-    uint8_t buf[16];
-    memset(buf, 0, 16);
-    EVP_EncryptUpdate(&ctx, buf, &cypherLen, buf, 16);
+    uint8_t subkey[16];
+    memset(subkey, 0, 16);
+    EVP_EncryptUpdate(&actx, subkey, &cypherLen, subkey, 16);
     #if DEBUG
         printf("K0       ");
-        print_hex(buf, 16);
+        print_hex(subkey, 16);
         printf("\n");
     #endif
-    cmac_subkey(buf, state->buffer_pos == 16 ? 1 : 2);
+    cmac_subkey(subkey, ctx->buf_pos == 16 ? 1 : 2);
     #if DEBUG
         printf("KX       ");
-        print_hex(buf, 16);
+        print_hex(subkey, 16);
         printf("\n");
     #endif
     // Calculate Subkey - END
 
-    for (i = 0; i < state->buffer_pos; i++) {
-        buf[i] ^= state->buffer[i];
+    for (i = 0; i < ctx->buf_pos; i++) {
+        subkey[i] ^= ctx->buf[i];
     }
 
-    if (i < 16) buf[i] ^= 128;
+    if (i < 16) subkey[i] ^= 128;
 
-    EVP_CIPHER_CTX_init(&ctx);
-    EVP_EncryptInit(&ctx, EVP_aes_128_cbc(), state->key, state->mac);
-    EVP_EncryptUpdate(&ctx, state->mac, &cypherLen, buf, 16);
-    memcpy(mac, state->mac, mac_len);
+    EVP_CIPHER_CTX_init(&actx);
+    EVP_EncryptInit(&actx, EVP_aes_128_cbc(), ctx->key, ctx->mac);
+    EVP_EncryptUpdate(&actx, ctx->mac, &cypherLen, subkey, 16);
+    memcpy(mac, ctx->mac, mac_len);
 
-    state->buffer_pos = 0;
-    memset(state->mac, 0, 16);
+    ctx->buf_pos = 0;
+    memset(ctx->mac, 0, 16);
 
     #if DEBUG
         printf("AES_CMAC ");
