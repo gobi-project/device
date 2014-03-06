@@ -3,6 +3,7 @@
 #include "flash-store.h"
 #include "clock.h"
 #include "er-coap-engine.h"
+#include "led_handler.h"
 
 #define DEBUG 1
 
@@ -34,6 +35,7 @@ AUTOSTART_PROCESSES(&server_firmware);
 extern resource_t res_device;
 extern resource_t res_time;
 extern resource_t res_flasher;
+extern resource_t res_led;
 
 PROCESS_THREAD(server_firmware, ev, data) {
   PROCESS_BEGIN();
@@ -56,6 +58,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
     rest_activate_resource(&res_device, "d");
     rest_activate_resource(&res_time, "time");
     rest_activate_resource(&res_flasher, "f");
+    rest_activate_resource(&res_led, "led");
   leds_off(LEDS_GREEN);
 
   PRINTF("Firmware gestartet.\n");
