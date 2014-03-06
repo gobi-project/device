@@ -301,6 +301,13 @@ void dtls_handshake(uint8_t ip[16]) {
     #endif
 
     size_t fin_len = makeContent(message + paylen, finished, client_finished, 12);
+
+    // Client Finished für Server Finished zusätzlich berücksichtigen
+    aes_cmac_update(&ctx, handshake_messages, handshake_messages_len);
+    aes_cmac_update(&ctx, message + paylen, fin_len);
+    aes_cmac_finish(&ctx, finished_source + 63, 16);
+    // Client Finished für Server Finished zusätzlich berücksichtigen - ENDE
+
     uint8_t nonce[12];
     uint16_t epoch = getEpoch(ip) + 1;
     nonce[4] = (epoch & 0xFF00) >> 8;
