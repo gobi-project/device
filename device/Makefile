@@ -31,7 +31,8 @@ APPS += aes
 APPS += ecc
 
 # der eigentliche Code (nicht benoetigt, wenn nur eine Datei...)
-PROJECT_SOURCEFILES = attributes.c flasher.c led_handler.c
+# Wird hier durch include der .c-Files in device.c gelöst
+PROJECT_SOURCEFILES = 
 
 copy:
 	cp $(CONTIKI_PROJECT)_$(TARGET).bin ../codtls-client/$(CONTIKI_PROJECT)_$(TARGET).bin

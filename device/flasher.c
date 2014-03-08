@@ -8,15 +8,6 @@
 
 #define BLOCKSIZE 46
 
-#define DEBUG 0
-
-#if DEBUG
-    #include <stdio.h>
-    #define PRINTF(...) printf(__VA_ARGS__)
-#else
-    #define PRINTF(...)
-#endif
-
 #if DEBUG
 void printflash() {
     uint8_t i;
@@ -72,5 +63,5 @@ void flasher_handler(void* request, void* response, uint8_t *buffer, uint16_t pr
         REST.set_response_status(response, CHANGED_2_04);
     }
 }
-//RESOURCE(flasher, METHOD_POST, "f","rt=\"os.update\";if=\"core.b\";ct=0");
+
 RESOURCE(res_flasher, "rt=\"os.update\";if=\"core.b\";ct=0", NULL, flasher_handler, NULL, NULL);

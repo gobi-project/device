@@ -3,7 +3,6 @@
 #include "flash-store.h"
 #include "clock.h"
 #include "er-coap-engine.h"
-#include "led_handler.h"
 
 #define DEBUG 1
 
@@ -28,37 +27,42 @@
   #define PRINTF(...)
 #endif
 
+// Sensoren und Resourcen einfügen - BEGIN
+#include "attributes.c"
+#include "flasher.c"
+#include "led.c"
+// Sensoren und Resourcen einfügen - END
+
 // Start Process
 PROCESS(server_firmware, "Server Firmware");
 AUTOSTART_PROCESSES(&server_firmware);
 
-extern resource_t res_device;
-extern resource_t res_time;
-extern resource_t res_flasher;
-extern resource_t res_led;
-
 PROCESS_THREAD(server_firmware, ev, data) {
   PROCESS_BEGIN();
-  SENSORS_ACTIVATE(button_sensor);
 
   uint32_t time;
   nvm_getVar((void *) &time, RES_FLASHTIME, LEN_FLASHTIME);
   clock_set_seconds(time);
 
   leds_arch_init();
-  #if RADIODEBUGLED
-    /* control TX_ON with the radio */
-    GPIO->FUNC_SEL.GPIO_44 = 2;
-    GPIO->PAD_DIR.GPIO_44 = 1;
-  #endif
-
   leds_on(LEDS_GREEN);
+    #if RADIODEBUGLED
+      /* control TX_ON with the radio */
+      GPIO->FUNC_SEL.GPIO_44 = 2;
+      GPIO->PAD_DIR.GPIO_44 = 1;
+    #endif
     nvm_init();
+    // Sensoren aktivieren - BEGIN
+    SENSORS_ACTIVATE(button_sensor);
+    led.configure(SENSORS_HW_INIT, 1);
+    // Sensoren aktivieren - END
+    // Resourcen aktivieren - BEGIN
     rest_init_engine();
     rest_activate_resource(&res_device, "d");
     rest_activate_resource(&res_time, "time");
     rest_activate_resource(&res_flasher, "f");
     rest_activate_resource(&res_led, "led");
+    // Resourcen aktivieren - END
   leds_off(LEDS_GREEN);
 
   PRINTF("Firmware gestartet.\n");
