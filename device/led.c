@@ -1,3 +1,6 @@
+#include "flash-store.h"
+#include "storage.h"
+
 #include <lib/sensors.h>
 #include <gpio-util.h>
 

@@ -1,8 +1,9 @@
 #include "button-sensor.h"
 #include "leds.h"
-#include "flash-store.h"
 #include "clock.h"
 #include "er-coap-engine.h"
+#include "flash-store.h"
+#include "storage.h"
 
 #define DEBUG 1
 
