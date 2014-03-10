@@ -64,4 +64,4 @@ void flasher_handler(void* request, void* response, uint8_t *buffer, uint16_t pr
     }
 }
 
-RESOURCE(res_flasher, "rt=\"os.update\";if=\"core.b\";ct=0", NULL, flasher_handler, NULL, NULL);
+RESOURCE(res_flasher, "rt=\"dev.update\";if=\"core.u\"", NULL, flasher_handler, NULL, NULL);

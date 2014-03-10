@@ -16,74 +16,78 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
     uint8_t uri_len = REST.get_url(request, &uri_path);
 
     if (uri_len == 1) {
-        const uint8_t *payload = 0;
-        size_t pay_len = REST.get_request_payload(request, &payload);
-        printf("Payload erhalten: %.*s\n", pay_len, payload);
-
-        memcpy(buffer, "/(name | model | uuid | time | psk)", 35);
-        REST.set_response_status(response, CONTENT_2_05);
-        REST.set_header_content_type(response, TEXT_PLAIN);
-        REST.set_response_payload(response, buffer, 35);
-    } else {
-        //*************************************************************************
-        //*  DEVICE NAME                                                          *
-        //*************************************************************************
-        if (uri_path[2] == 'n') {
-            nvm_getVar(buffer, RES_NAME, LEN_NAME);
-            buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
-            REST.set_response_status(response, CONTENT_2_05);
-            REST.set_header_content_type(response, TEXT_PLAIN);
-            REST.set_response_payload(response, buffer, LEN_NAME);
-        }
-
-        //*************************************************************************
-        //*  DEVICE MODEL                                                         *
-        //*************************************************************************
-        if (uri_path[2] == 'm') {
-            nvm_getVar(buffer, RES_MODEL, LEN_MODEL);
-            buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
-            REST.set_response_status(response, CONTENT_2_05);
-            REST.set_header_content_type(response, TEXT_PLAIN);
-            REST.set_response_payload(response, buffer, LEN_MODEL);
+        if (*offset >= LEN_D_CORE) {
+            coap_set_status_code(response, BAD_OPTION_4_02);
+            coap_set_payload(response, "BlockOutOfScope", 15);
             return;
         }
 
-        //*************************************************************************
-        //*  DEVICE IDENTIFIER                                                    *
-        //*************************************************************************
-        if (uri_path[2] == 'u') {
-            nvm_getVar(buffer, RES_UUID, LEN_UUID);
-            buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
-            REST.set_response_status(response, CONTENT_2_05);
-            REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
-            REST.set_response_payload(response, buffer, LEN_UUID);
+        nvm_getVar(buffer, RES_D_CORE + *offset, preferred_size);
+        if (LEN_D_CORE - *offset < preferred_size) {
+            preferred_size = LEN_D_CORE - *offset;
+            *offset = -1;
+        } else {
+            *offset += preferred_size;
         }
 
-        //*************************************************************************
-        //*  DEVICE TIME                                                          *
-        //*************************************************************************
-        if (uri_path[2] == 't') {
-            uint32_t time = uip_htonl(clock_seconds());
-            memcpy(buffer, &time, 4);
-            REST.set_response_status(response, CONTENT_2_05);
-            REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
-            REST.set_response_payload(response, buffer, 4);
-        }
+        REST.set_header_content_type(response, APPLICATION_LINK_FORMAT);
+        REST.set_response_payload(response, buffer, preferred_size);
+        return;
+    }
 
-        //*************************************************************************
-        //*  DEVICE PSK                                                           *
-        //*************************************************************************
-        if (uri_path[2] == 'p') {
-            getPSK(buffer);
-            buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
-            REST.set_response_status(response, CONTENT_2_05);
-            REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
-            REST.set_response_payload(response, buffer, LEN_PSK);
-        }
+    //*************************************************************************
+    //*  DEVICE NAME                                                          *
+    //*************************************************************************
+    if (uri_path[2] == 'n') {
+        nvm_getVar(buffer, RES_NAME, LEN_NAME);
+        buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
+        REST.set_header_content_type(response, TEXT_PLAIN);
+        REST.set_response_payload(response, buffer, LEN_NAME);
+    }
+
+    //*************************************************************************
+    //*  DEVICE MODEL                                                         *
+    //*************************************************************************
+    if (uri_path[2] == 'm') {
+        nvm_getVar(buffer, RES_MODEL, LEN_MODEL);
+        buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
+        REST.set_header_content_type(response, TEXT_PLAIN);
+        REST.set_response_payload(response, buffer, LEN_MODEL);
+        return;
+    }
+
+    //*************************************************************************
+    //*  DEVICE IDENTIFIER                                                    *
+    //*************************************************************************
+    if (uri_path[2] == 'u') {
+        nvm_getVar(buffer, RES_UUID, LEN_UUID);
+        buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
+        REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
+        REST.set_response_payload(response, buffer, LEN_UUID);
+    }
+
+    //*************************************************************************
+    //*  DEVICE TIME                                                          *
+    //*************************************************************************
+    if (uri_path[2] == 't') {
+        uint32_t time = uip_htonl(clock_seconds());
+        memcpy(buffer, &time, 4);
+        REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
+        REST.set_response_payload(response, buffer, 4);
+    }
+
+    //*************************************************************************
+    //*  DEVICE PSK                                                           *
+    //*************************************************************************
+    if (uri_path[2] == 'p') {
+        getPSK(buffer);
+        buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
+        REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
+        REST.set_response_payload(response, buffer, LEN_PSK);
     }
 }
-// RESOURCE(device, METHOD_GET | HAS_SUB_RESOURCES, "d", "rt=\"device.information\";if=\"core.rp\";ct=42");
-PARENT_RESOURCE(res_device, "rt=\"device.information\";if=\"core.rp\";ct=42", device_handler, NULL, NULL, NULL);
+
+PARENT_RESOURCE(res_device, "rt=\"dev.info\";if=\"core.ll\"", device_handler, NULL, NULL, NULL);
 
 void time_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
     const uint8_t *payload = 0;
@@ -101,5 +105,5 @@ void time_handler(void* request, void* response, uint8_t *buffer, uint16_t prefe
         REST.set_response_payload(response, buffer, 48);
     }
 }
-// RESOURCE(time, METHOD_POST, "time", "rt=\"device.time.update\";if=\"core.b\";ct=0");
-RESOURCE(res_time, "rt=\"device.time.update\";if=\"core.b\";ct=0", NULL, time_handler, NULL, NULL);
+
+RESOURCE(res_time, "rt=\"dev.time.update\";if=\"core.u\"", NULL, time_handler, NULL, NULL);

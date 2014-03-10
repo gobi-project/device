@@ -21,7 +21,7 @@
 // 0x1E000 - 0x1EFFF MAC, UUID, PSK, PSK-Zeichen, ECC-Base-Point, Name, Model, Flashzeitpunkt
 // 0x1F000 - 0x1FFFF Systemreserviert
 
-//Read Only Fehlermeldungen / SenML-Antworten
+//Read Only Fehlermeldungen / CoRE-Link- und SenML-Antworten
 #define RES_B_ERR_05     0x1D000
 #define LEN_B_ERR_05     73
 #define RES_B_ERR_04     0x1D080
@@ -33,8 +33,10 @@
 #define RES_B_ERR_01     0x1D200
 #define LEN_B_ERR_01     61
 
-#define RES_SENML_BIN    0x1D280
-#define LEN_SENML_BIN    37
+#define RES_D_CORE       0x1D280
+#define LEN_D_CORE       184
+#define RES_SENML_BIN    0x1D380
+#define LEN_SENML_BIN    38
 
 //Read Only Vars
 #define RES_CONFIG       0x1E000
@@ -111,8 +113,15 @@ int main(int nArgs, char **argv) {
     buffer = "Der erste Teil des Handshakes wurde noch nicht durchgefuehrt.";
     memcpy(output + RES_B_ERR_01, buffer, LEN_B_ERR_01);
 
-// SenML-Antworten setzen -----------------------------------------------------
-    buffer = "{\"bn\":\"%s\",\"bu\":\"B\",\"e\":[{\"v\":\"%d\"}]}";
+// CoRE-Link- und SenML-Antworten setzen --------------------------------------
+    buffer = "</d/name>;rt=\"dev.info\";if=\"core.rp\","
+             "</d/model>;rt=\"dev.info\";if=\"core.rp\","
+             "</d/uuid>;rt=\"dev.info\";if=\"core.rp\","
+             "</d/time>;rt=\"dev.info\";if=\"core.rp\","
+             "</d/psk>;rt=\"dev.info\";if=\"core.rp\"";
+    memcpy(output + RES_D_CORE, buffer, LEN_D_CORE);
+
+    buffer = "{\"bn\":\"%s\",\"bu\":\"B\",\"e\":[{\"v\":\"%d\"}]}\x00";
     memcpy(output + RES_SENML_BIN, buffer, LEN_SENML_BIN);
 
 // Contiki-Config setzen ------------------------------------------------------

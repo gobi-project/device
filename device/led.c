@@ -37,7 +37,6 @@ SENSORS_SENSOR(led, "LED", value, configure, status); // register the functions
 
 void led_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
   int length = 0;
-  buffer[REST_MAX_CHUNK_SIZE-1] = 0;
 
   if (REST.get_method_type(request) != METHOD_GET) {
     const uint8_t *payload = 0;
@@ -51,8 +50,7 @@ void led_resource_handler(void* request, void* response, uint8_t *buffer, uint16
   length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, "/led", led.value(SENSORS_ACTIVE));
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
-  REST.set_header_etag(response, (uint8_t *) &length, 1);
   REST.set_response_payload(response, buffer, length);
 }
 
-RESOURCE(res_led, "rt=\"led\";if=\"core.s\"", led_resource_handler, led_resource_handler, led_resource_handler, 0 );
+RESOURCE(res_led, "rt=\"gobi.a.light.swt\";if=\"core.a\"", led_resource_handler, led_resource_handler, led_resource_handler, 0 );
