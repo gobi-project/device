@@ -31,7 +31,8 @@
 // Sensoren und Resourcen einfügen - BEGIN
 #include "attributes.c"
 #include "flasher.c"
-#include "led.c"
+#include "led_bin.c"
+ #include "led_dim.c"
 // Sensoren und Resourcen einfügen - END
 
 // Start Process
@@ -55,14 +56,16 @@ PROCESS_THREAD(server_firmware, ev, data) {
     nvm_init();
     // Sensoren aktivieren - BEGIN
     SENSORS_ACTIVATE(button_sensor);
-    led.configure(SENSORS_HW_INIT, 1);
+    led_bin.configure(SENSORS_HW_INIT, 1);
+    led_dim.configure(SENSORS_HW_INIT, 1);
     // Sensoren aktivieren - END
     // Resourcen aktivieren - BEGIN
     rest_init_engine();
     rest_activate_resource(&res_device, "d");
     rest_activate_resource(&res_time, "time");
     rest_activate_resource(&res_flasher, "f");
-    rest_activate_resource(&res_led, "led");
+    rest_activate_resource(&res_led_bin, "led_b");
+    rest_activate_resource(&res_led_dim, "led_d");
     // Resourcen aktivieren - END
   leds_off(LEDS_GREEN);
 

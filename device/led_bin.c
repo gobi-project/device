@@ -9,12 +9,12 @@
 
 /* SENSOR ------------------------------------------------------------------ */
 
-static int value(int type) {
+static int led_bin_value(int type) {
   if (type == SENSORS_HW_INIT) return 0;
   return gpio_read(42);
 }
 
-static int configure(int type, int c) {
+static int led_bin_configure(int type, int c) {
   switch (type) {
     case SENSORS_HW_INIT:
       gpio_set_pad_dir(42, PAD_DIR_OUTPUT);
@@ -29,31 +29,31 @@ static int configure(int type, int c) {
   }
 }
 
-static int status(int type) {
+static int led_bin_status(int type) {
   if (type == SENSORS_HW_INIT) return 0;
   return *GPIO_PAD_DIR1 & *GPIO_DATA_SEL1 & (1UL << 10);
 }
 
-SENSORS_SENSOR(led, "LED", value, configure, status); // register the functions
+SENSORS_SENSOR(led_bin, "LED_B", led_bin_value, led_bin_configure, led_bin_status);
 
 /* RESOURCE ---------------------------------------------------------------- */
 
-void led_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
+void led_bin_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
   int length = 0;
 
   if (REST.get_method_type(request) != METHOD_GET) {
     const uint8_t *payload = 0;
     int len = 0;
     len = REST.get_request_payload(request, &payload);
-    led.configure(SENSORS_ACTIVE, atoi(payload));
+    led_bin.configure(SENSORS_ACTIVE, atoi(payload));
   }
 
-  uint8_t source_string[LEN_SENML_BIN]; // {"bn":"%s","bu":"B","e":[{"v":"%d"}]}
-  nvm_getVar(source_string, RES_SENML_BIN, LEN_SENML_BIN);
-  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, "/led", led.value(SENSORS_ACTIVE));
+  uint8_t source_string[LEN_SENML]; // {"bn":"%s","bu":"%s","e":[{"v":"%d"}]}
+  nvm_getVar(source_string, RES_SENML, LEN_SENML);
+  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, "/led_b", "B", led_bin.value(SENSORS_ACTIVE));
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
   REST.set_response_payload(response, buffer, length);
 }
 
-RESOURCE(res_led, "rt=\"gobi.a.light.swt\";if=\"core.a\"", led_resource_handler, led_resource_handler, led_resource_handler, 0 );
+RESOURCE(res_led_bin, "rt=\"gobi.a.light.swt\";if=\"core.a\"", led_bin_resource_handler, led_bin_resource_handler, led_bin_resource_handler, 0);

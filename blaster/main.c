@@ -35,8 +35,8 @@
 
 #define RES_D_CORE       0x1D280
 #define LEN_D_CORE       184
-#define RES_SENML_BIN    0x1D380
-#define LEN_SENML_BIN    38
+#define RES_SENML        0x1D380
+#define LEN_SENML        39
 
 //Read Only Vars
 #define RES_CONFIG       0x1E000
@@ -121,8 +121,8 @@ int main(int nArgs, char **argv) {
              "</d/psk>;rt=\"dev.info\";if=\"core.rp\"";
     memcpy(output + RES_D_CORE, buffer, LEN_D_CORE);
 
-    buffer = "{\"bn\":\"%s\",\"bu\":\"B\",\"e\":[{\"v\":\"%d\"}]}\x00";
-    memcpy(output + RES_SENML_BIN, buffer, LEN_SENML_BIN);
+    buffer = "{\"bn\":\"%s\",\"bu\":\"%s\",\"e\":[{\"v\":\"%d\"}]}\x00";
+    memcpy(output + RES_SENML, buffer, LEN_SENML);
 
 // Contiki-Config setzen ------------------------------------------------------
     output[RES_CONFIG + 0] = 0x22;

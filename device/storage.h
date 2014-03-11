@@ -15,8 +15,8 @@
 
 #define RES_D_CORE       0x1D280
 #define LEN_D_CORE       184
-#define RES_SENML_BIN    0x1D380
-#define LEN_SENML_BIN    38
+#define RES_SENML        0x1D380
+#define LEN_SENML        39
 
 //Read Only Vars
 #define RES_CONFIG       0x1E000
