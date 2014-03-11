@@ -32,7 +32,8 @@
 #include "attributes.c"
 #include "flasher.c"
 #include "led_bin.c"
- #include "led_dim.c"
+#include "led_dim.c"
+#include "tmp.c"
 // Sensoren und Resourcen einfügen - END
 
 // Start Process
@@ -53,11 +54,13 @@ PROCESS_THREAD(server_firmware, ev, data) {
       GPIO->FUNC_SEL.GPIO_44 = 2;
       GPIO->PAD_DIR.GPIO_44 = 1;
     #endif
+    i2c_enable();
     nvm_init();
     // Sensoren aktivieren - BEGIN
     SENSORS_ACTIVATE(button_sensor);
     led_bin.configure(SENSORS_HW_INIT, 1);
     led_dim.configure(SENSORS_HW_INIT, 1);
+    tmp.configure(SENSORS_HW_INIT, 1);
     // Sensoren aktivieren - END
     // Resourcen aktivieren - BEGIN
     rest_init_engine();
@@ -66,6 +69,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
     rest_activate_resource(&res_flasher, "f");
     rest_activate_resource(&res_led_bin, "led_b");
     rest_activate_resource(&res_led_dim, "led_d");
+    rest_activate_resource(&res_tmp, "tmp");
     // Resourcen aktivieren - END
   leds_off(LEDS_GREEN);
 

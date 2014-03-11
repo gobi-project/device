@@ -12,7 +12,7 @@ UIP_CONF_IPV6=1
 # CFLAGS += -DWITH_DTLS=1
 CFLAGS += -DREST=coap_rest_implementation
 CFLAGS += -DUIP_CONF_TCP=0
-#??? CFLAGS += -DDEBUG_PRINT=1
+# ??? CFLAGS += -DDEBUG_PRINT=1
 CFLAGS += -DSTACKMONITOR=1  # Initialiserung um den maximal benötigten Stack ermitteln zu können
 CFLAGS += -DHEAPMONITOR=1   # Initialiserung um den maximal benötigten Heap ermitteln zu können
 CFLAGS += -DRADIODEBUGLED=1 # Aktiviert die rote LED bei Datentransfer über 802.15.4
