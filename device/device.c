@@ -1,4 +1,4 @@
-#include "button-sensor.h"
+//#include "button-sensor.h"
 #include "leds.h"
 #include "clock.h"
 #include "er-coap-engine.h"
@@ -32,6 +32,7 @@
 #include "attributes.c"
 #include "flasher.c"
 #include "led.c"
+#include "externbutton.c"
 // Sensoren und Resourcen einfügen - END
 
 // Start Process
@@ -54,7 +55,9 @@ PROCESS_THREAD(server_firmware, ev, data) {
     #endif
     nvm_init();
     // Sensoren aktivieren - BEGIN
-    SENSORS_ACTIVATE(button_sensor);
+    //SENSORS_ACTIVATE(button_sensor);
+    SENSORS_ACTIVATE(externbutton_sensor);
+
     led.configure(SENSORS_HW_INIT, 1);
     // Sensoren aktivieren - END
     // Resourcen aktivieren - BEGIN
@@ -70,8 +73,15 @@ PROCESS_THREAD(server_firmware, ev, data) {
 
   while(1) {
     PROCESS_WAIT_EVENT();
+    
+    //PRINTF("value: %d \n", externbutton_sensor.value(0) );
+    //PRINTF("ready: %d \n", externbutton_sensor.status(SENSORS_READY) );
+    if( externbutton_sensor.value(0) )
+    {
+      PRINTF("extern button \n");
+    }
 
-    if (ev == sensors_event && data == &button_sensor) {
+    if (ev == sensors_event && data == &externbutton_sensor) {
       uip_ipaddr_t *addr = uip_ds6_defrt_choose();
 
       if (addr != 0) {
