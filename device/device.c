@@ -54,7 +54,6 @@ PROCESS_THREAD(server_firmware, ev, data) {
       GPIO->FUNC_SEL.GPIO_44 = 2;
       GPIO->PAD_DIR.GPIO_44 = 1;
     #endif
-    i2c_enable();
     nvm_init();
     // Sensoren aktivieren - BEGIN
     SENSORS_ACTIVATE(button_sensor);

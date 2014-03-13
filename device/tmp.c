@@ -87,6 +87,7 @@ static int tmp_configure(int type, int c) {
   switch (type) {
     case SENSORS_HW_INIT:
       if (c) {
+        i2c_enable();
         set_configuration(1, 0); // every 1 second, 12bit precision
       } else {
         // set inactive
@@ -104,9 +105,9 @@ SENSORS_SENSOR(tmp, "Tmp", tmp_value, tmp_configure, tmp_status); // register th
 void tmp_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
   int length = 0;
 
-  uint8_t source_string[LEN_SENML]; // {"bn":"%s","bu":"%s","e":[{"v":"%d"}]}
-  nvm_getVar(source_string, RES_SENML, LEN_SENML);
-  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, "/tmp", "%degC", tmp.value(SENSORS_ACTIVE));
+  uint8_t source_string[LEN_SENML_TMP]; // {"bn":"/tmp","bu":"%%degC","e":[{"v":"%d.%d"}]}
+  nvm_getVar(source_string, RES_SENML_TMP, LEN_SENML_TMP);
+  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, tmp.value(SENSORS_ACTIVE) / 100, tmp.value(SENSORS_ACTIVE) % 100);
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
   REST.set_response_payload(response, buffer, length);

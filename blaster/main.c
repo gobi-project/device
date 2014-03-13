@@ -35,8 +35,12 @@
 
 #define RES_D_CORE       0x1D280
 #define LEN_D_CORE       184
-#define RES_SENML        0x1D380
-#define LEN_SENML        39
+#define RES_SENML_LEDB   0x1D380
+#define LEN_SENML_LEDB   42
+#define RES_SENML_LEDD   0x1D3C0
+#define LEN_SENML_LEDD   43
+#define RES_SENML_TMP    0x1D400
+#define LEN_SENML_TMP    48
 
 //Read Only Vars
 #define RES_CONFIG       0x1E000
@@ -121,8 +125,12 @@ int main(int nArgs, char **argv) {
              "</d/psk>;rt=\"dev.info\";if=\"core.rp\"";
     memcpy(output + RES_D_CORE, buffer, LEN_D_CORE);
 
-    buffer = "{\"bn\":\"%s\",\"bu\":\"%s\",\"e\":[{\"v\":\"%d\"}]}\x00";
-    memcpy(output + RES_SENML, buffer, LEN_SENML);
+    buffer = "{\"bn\":\"/led_b\",\"bu\":\"B\",\"e\":[{\"v\":\"%d\"}]}\x00";
+    memcpy(output + RES_SENML_LEDB, buffer, LEN_SENML_LEDB);
+    buffer = "{\"bn\":\"/led_d\",\"bu\":\"%%\",\"e\":[{\"v\":\"%d\"}]}\x00";
+    memcpy(output + RES_SENML_LEDD, buffer, LEN_SENML_LEDD);
+    buffer = "{\"bn\":\"/tmp\",\"bu\":\"%%degC\",\"e\":[{\"v\":\"%d.%d\"}]}\x00";
+    memcpy(output + RES_SENML_TMP, buffer, LEN_SENML_TMP);
 
 // Contiki-Config setzen ------------------------------------------------------
     output[RES_CONFIG + 0] = 0x22;

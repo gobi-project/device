@@ -53,9 +53,9 @@ void led_dim_resource_handler(void* request, void* response, uint8_t *buffer, ui
     led_dim.configure(SENSORS_ACTIVE, atoi(payload));
   }
 
-  uint8_t source_string[LEN_SENML]; // {"bn":"%s","bu":"%s","e":[{"v":"%d"}]}
-  nvm_getVar(source_string, RES_SENML, LEN_SENML);
-  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, "/led_d", "%", led_dim.value(SENSORS_ACTIVE));
+  uint8_t source_string[LEN_SENML_LEDD]; // {"bn":"/led_d","bu":"%%","e":[{"v":"%d"}]}
+  nvm_getVar(source_string, RES_SENML_LEDD, LEN_SENML_LEDD);
+  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, led_dim.value(SENSORS_ACTIVE));
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
   REST.set_response_payload(response, buffer, length);
