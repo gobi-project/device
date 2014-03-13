@@ -39,7 +39,7 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
     //*************************************************************************
     //*  DEVICE NAME                                                          *
     //*************************************************************************
-    if (uri_path[2] == 'n') {
+    if (uri_path[2] == 'n' && uri_path[3] == 'a') {
         nvm_getVar(buffer, RES_NAME, LEN_NAME);
         buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
         REST.set_header_content_type(response, TEXT_PLAIN);
@@ -85,6 +85,49 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
         buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
         REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
         REST.set_response_payload(response, buffer, LEN_PSK);
+    }
+
+    //*************************************************************************
+    //*  DEVICE DEFAULT ROUTE                                                 *
+    //*************************************************************************
+    if (uri_path[2] == 'r') {
+        uip_ipaddr_t *addr = uip_ds6_defrt_choose();
+        memcpy(buffer, addr, 16);
+        REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
+        REST.set_response_payload(response, buffer, 16);
+    }
+
+    //*************************************************************************
+    //*  DEVICE NEIGHBOURS                                                    *
+    //*************************************************************************
+    if (uri_path[2] == 'n' && uri_path[3] == 'b') {
+        uint32_t o = *offset / 16;
+        uint32_t bfr_ptr = 0;
+        uint32_t i;
+        uip_ds6_nbr_t *nbr = nbr_table_head(ds6_neighbors);
+        for (i = 0; i < (o+2); i++) {
+            if (i >= o) {
+                memcpy(buffer + bfr_ptr, &nbr->ipaddr, 16);
+                bfr_ptr += 16;
+            }
+
+            nbr = nbr_table_next(ds6_neighbors, nbr);
+            if (nbr == NULL) {
+                if (bfr_ptr == 0) {
+                  coap_set_status_code(response, BAD_OPTION_4_02);
+                  coap_set_payload(response, "BlockOutOfScope", 15);
+                  return;
+                }
+                break;
+            }
+        }
+        if (nbr == NULL) {
+            *offset = -1;
+        } else {
+           *offset += bfr_ptr;
+        }
+        REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
+        REST.set_response_payload(response, buffer, bfr_ptr);
     }
 }
 

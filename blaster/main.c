@@ -34,12 +34,12 @@
 #define LEN_B_ERR_01     61
 
 #define RES_D_CORE       0x1D280
-#define LEN_D_CORE       184
-#define RES_SENML_LEDB   0x1D380
+#define LEN_D_CORE       257
+#define RES_SENML_LEDB   0x1D400
 #define LEN_SENML_LEDB   42
-#define RES_SENML_LEDD   0x1D3C0
+#define RES_SENML_LEDD   0x1D440
 #define LEN_SENML_LEDD   43
-#define RES_SENML_TMP    0x1D400
+#define RES_SENML_TMP    0x1D480
 #define LEN_SENML_TMP    48
 
 //Read Only Vars
@@ -122,7 +122,9 @@ int main(int nArgs, char **argv) {
              "</d/model>;rt=\"dev.info\";if=\"core.rp\","
              "</d/uuid>;rt=\"dev.info\";if=\"core.rp\","
              "</d/time>;rt=\"dev.info\";if=\"core.rp\","
-             "</d/psk>;rt=\"dev.info\";if=\"core.rp\"";
+             "</d/psk>;rt=\"dev.info\";if=\"core.rp\","
+             "</d/route>;rt=\"dev.info\";if=\"core.rp\","
+             "</d/nb>;rt=\"dev.info\";if=\"core.rp\"";
     memcpy(output + RES_D_CORE, buffer, LEN_D_CORE);
 
     buffer = "{\"bn\":\"/led_b\",\"bu\":\"B\",\"e\":[{\"v\":\"%d\"}]}\x00";

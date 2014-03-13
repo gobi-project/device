@@ -15,15 +15,8 @@
 
 #define PRINT6ADDR(addr) PRINTF("[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]", ((uint8_t *)addr)[0], ((uint8_t *)addr)[1], ((uint8_t *)addr)[2], ((uint8_t *)addr)[3], ((uint8_t *)addr)[4], ((uint8_t *)addr)[5], ((uint8_t *)addr)[6], ((uint8_t *)addr)[7], ((uint8_t *)addr)[8], ((uint8_t *)addr)[9], ((uint8_t *)addr)[10], ((uint8_t *)addr)[11], ((uint8_t *)addr)[12], ((uint8_t *)addr)[13], ((uint8_t *)addr)[14], ((uint8_t *)addr)[15])
 
-  extern uint32_t _start, _edata;
-  extern uint32_t __stack_start__;
-  extern uint32_t __irq_stack_top__;
-  extern uint32_t __fiq_stack_top__;
-  extern uint32_t __svc_stack_top__;
-  extern uint32_t __abt_stack_top__;
   extern uint32_t __und_stack_top__;
   extern uint32_t __sys_stack_top__;
-  extern uint32_t __bss_start__, __bss_end__;
   extern uint32_t __heap_start__, __heap_end__;
 #else
   #define PRINTF(...)
@@ -99,36 +92,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
       }
 
       #if DEBUG
-        PRINTF("\n");
-        PRINTF("Speicheraufteilung (Konfiguration in contiki/cpu/mc1322x/mc1322x.lds)\n");
-        PRINTF("---------------------------------------------------------------------\n");
-        PRINTF("\n");
-        PRINTF("Beschreibung | Start      | Ende       | Größe\n");
-        PRINTF("----------------------------------------------\n");
-        PRINTF("Programm     | 0x%08x | 0x%08x | %5u\n",
-          &_start,            &_edata,            (uint32_t) &_edata            - (uint32_t) &_start);
-        PRINTF("Irq Stack    | 0x%08x | 0x%08x | %5u\n",
-          &__stack_start__,   &__irq_stack_top__, (uint32_t) &__irq_stack_top__ - (uint32_t) &__stack_start__);
-        PRINTF("Fiq Stack    | 0x%08x | 0x%08x | %5u\n",
-          &__irq_stack_top__, &__fiq_stack_top__, (uint32_t) &__fiq_stack_top__ - (uint32_t) &__irq_stack_top__);
-        PRINTF("Svc Stack    | 0x%08x | 0x%08x | %5u\n",
-          &__fiq_stack_top__, &__svc_stack_top__, (uint32_t) &__svc_stack_top__ - (uint32_t) &__fiq_stack_top__);
-        PRINTF("Abt Stack    | 0x%08x | 0x%08x | %5u\n",
-          &__svc_stack_top__, &__abt_stack_top__, (uint32_t) &__abt_stack_top__ - (uint32_t) &__svc_stack_top__);
-        PRINTF("Und Stack    | 0x%08x | 0x%08x | %5u\n",
-          &__abt_stack_top__, &__und_stack_top__, (uint32_t) &__und_stack_top__ - (uint32_t) &__abt_stack_top__);
-        PRINTF("Sys Stack    | 0x%08x | 0x%08x | %5u\n",
-          &__und_stack_top__, &__sys_stack_top__, (uint32_t) &__sys_stack_top__ - (uint32_t) &__und_stack_top__);
-        PRINTF("Datensegment | 0x%08x | 0x%08x | %5u\n",
-          &__bss_start__,     &__bss_end__,       (uint32_t) &__bss_end__       - (uint32_t) &__bss_start__);
-        PRINTF("Heap         | 0x%08x | 0x%08x | %5u\n",
-          &__heap_start__,    &__heap_end__,      (uint32_t) &__heap_end__      - (uint32_t) &__heap_start__);
-        PRINTF("Frei         | 0x%08x | 0x%08x | %5u\n",
-          &__heap_end__,      0x418000,           0x418000                      - (uint32_t) &__heap_end__);
-        PRINTF("----------------------------------------------\n");
-        PRINTF("Frei += 1108 bei der Deaktivierung dieser Auskunft\n");
-
-        PRINTF("\n");
+        PRINTF("\nFrei: %u Byte\n", 0x418000 - (uint32_t) &__heap_end__);
 
         // Folgende Ausgaben möglich durch Speicherinitialisierung in
         // contiki/platform/econotag/main.c durch hinzufügen der Flags
