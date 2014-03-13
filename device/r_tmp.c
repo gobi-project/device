@@ -6,6 +6,9 @@
  * Original Author  : Hedde Bosman (heddebosman@incas3.eu)
  */
 
+#include "device.h"
+#include "flash-store.h"
+
 #include "contiki.h"
 #include "lib/sensors.h"
 #include "i2c.h"
@@ -113,4 +116,10 @@ void tmp_resource_handler(void* request, void* response, uint8_t *buffer, uint16
   REST.set_response_payload(response, buffer, length);
 }
 
-RESOURCE(res_tmp, "rt=\"gobi.s.tmp\";if=\"core.s\";obs", tmp_resource_handler, NULL, NULL, NULL);
+void tmp_periodic_handler();
+
+PERIODIC_RESOURCE(res_tmp, "rt=\"gobi.s.tmp\";if=\"core.s\";obs", tmp_resource_handler, NULL, NULL, NULL, 5 * CLOCK_SECOND, tmp_periodic_handler);
+
+void tmp_periodic_handler() {
+  REST.notify_subscribers(&res_tmp);
+}

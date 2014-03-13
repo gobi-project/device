@@ -5,12 +5,12 @@
 #include <er-coap-separate.h>
 #include <er-coap-transactions.h>
 
+#include "device.h"
 #include "mc1322x.h"
 #include "clock.h"
 #include "ecc.h"
 #include "er-dtls-psk.h"
 #include "flash-store.h"
-#include "storage.h"
 
 void device_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
     const char *uri_path = NULL;

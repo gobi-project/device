@@ -1,5 +1,5 @@
+#include "device.h"
 #include "flash-store.h"
-#include "storage.h"
 
 #include <lib/sensors.h>
 #include <pwm.h>
