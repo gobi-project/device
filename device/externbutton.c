@@ -27,8 +27,8 @@ static int
 configure_externbutton(int type, int c)
 {
 	switch (type) {
-	case SENSORS_ACTIVE:
-		if (c) {
+	case SENSORS_HW_INIT:
+		if(c == 0) {
 			if(!status_externbutton(SENSORS_ACTIVE)) {
 				timer_set(&externbutton_debouncetimer, 0);
 				enable_irq_kbi(6);
@@ -56,4 +56,3 @@ status_externbutton(int type)
 }
 
 SENSORS_SENSOR(externbutton_sensor, "ExternButton", value_externbutton, configure_externbutton, status_externbutton);
-SENSORS(&externbutton_sensor);

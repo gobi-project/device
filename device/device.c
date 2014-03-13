@@ -1,4 +1,4 @@
-//#include "button-sensor.h"
+#include "button-sensor.h"
 #include "leds.h"
 #include "clock.h"
 #include "er-coap-engine.h"
@@ -35,6 +35,8 @@
 #include "externbutton.c"
 // Sensoren und Resourcen einfügen - END
 
+SENSORS( &button_sensor, &externbutton_sensor, &led );
+
 // Start Process
 PROCESS(server_firmware, "Server Firmware");
 AUTOSTART_PROCESSES(&server_firmware);
@@ -54,12 +56,6 @@ PROCESS_THREAD(server_firmware, ev, data) {
       GPIO->PAD_DIR.GPIO_44 = 1;
     #endif
     nvm_init();
-    // Sensoren aktivieren - BEGIN
-    //SENSORS_ACTIVATE(button_sensor);
-    SENSORS_ACTIVATE(externbutton_sensor);
-
-    led.configure(SENSORS_HW_INIT, 1);
-    // Sensoren aktivieren - END
     // Resourcen aktivieren - BEGIN
     rest_init_engine();
     rest_activate_resource(&res_device, "d");
@@ -74,14 +70,19 @@ PROCESS_THREAD(server_firmware, ev, data) {
   while(1) {
     PROCESS_WAIT_EVENT();
     
-    //PRINTF("value: %d \n", externbutton_sensor.value(0) );
-    //PRINTF("ready: %d \n", externbutton_sensor.status(SENSORS_READY) );
-    if( externbutton_sensor.value(0) )
+    if (ev == sensors_event && data == &button_sensor)
     {
-      PRINTF("extern button \n");
+      PRINTF("board button \n");
+      led.configure( SENSORS_ACTIVE, 1 );
     }
 
-    if (ev == sensors_event && data == &externbutton_sensor) {
+    if (ev == sensors_event && data == &externbutton_sensor)
+    {
+      PRINTF("extern button \n");   
+      led.configure( SENSORS_ACTIVE, 0 );
+    }
+
+    if (ev == sensors_event && data == &externbutton_sensor && false ) {
       uip_ipaddr_t *addr = uip_ds6_defrt_choose();
 
       if (addr != 0) {
