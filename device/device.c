@@ -32,7 +32,7 @@
 #include "r_button_ex.c"
 // Sensoren und Resourcen einfügen - END
 
-SENSORS(&button_sensor, &externbutton_sensor, &led_bin, &led_dim);
+SENSORS(&button_sensor, &externbutton_sensor, &led_bin, &led_dim, &tmp);
 
 // Start Process
 PROCESS(server_firmware, "Server Firmware");
