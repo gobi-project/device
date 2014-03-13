@@ -61,6 +61,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
     rest_activate_resource(&res_led_bin, "led_b");
     rest_activate_resource(&res_led_dim, "led_d");
     rest_activate_resource(&res_tmp, "tmp");
+    rest_activate_resource(&res_btn, "btn");
     // Resourcen aktivieren - END
   leds_off(LEDS_GREEN);
 

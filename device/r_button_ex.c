@@ -2,6 +2,13 @@
 #include "mc1322x.h"
 #include <signal.h>
 
+void button_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
+void button_event_handler();
+
+EVENT_RESOURCE(res_btn, "rt=\"gobi.s.swt\";if=\"core.s\";obs", button_resource_handler, 0, 0, 0, button_event_handler);
+
+/* SENSOR ------------------------------------------------------------------ */
+
 const struct sensors_sensor externbutton_sensor;
 
 static struct timer externbutton_debouncetimer;
@@ -13,6 +20,7 @@ void kbi6_isr(void)
 	{
 		timer_set(&externbutton_debouncetimer, CLOCK_SECOND / 4);
 		sensors_changed(&externbutton_sensor);
+    res_btn.trigger();
 	}
 	clear_kbi_evnt(6);
 }
@@ -56,3 +64,15 @@ status_externbutton(int type)
 }
 
 SENSORS_SENSOR(externbutton_sensor, "ExternButton", value_externbutton, configure_externbutton, status_externbutton);
+
+/* RESOURCE ---------------------------------------------------------------- */
+
+void button_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
+  buffer[0] = '1';
+  REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
+  REST.set_response_payload(response, buffer, 1);
+}
+
+void button_event_handler() {
+  REST.notify_subscribers(&res_btn);
+}

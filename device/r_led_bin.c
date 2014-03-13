@@ -11,18 +11,18 @@
 
 static int led_bin_value(int type) {
   if (type == SENSORS_HW_INIT) return 0;
-  return gpio_read(42);
+  return gpio_read(43);
 }
 
 static int led_bin_configure(int type, int c) {
   switch (type) {
     case SENSORS_HW_INIT:
-      gpio_set_pad_dir(42, PAD_DIR_OUTPUT);
-      gpio_reg_set(GPIO_DATA_SEL1, 10);
+      gpio_set_pad_dir(43, PAD_DIR_OUTPUT);
+      gpio_reg_set(GPIO_DATA_SEL1, 11);
       return 1;
     case SENSORS_ACTIVE:
-      if (c) gpio_set(42);
-      else gpio_reset(42);
+      if (c) gpio_set(43);
+      else gpio_reset(43);
       return 1;
     default:
       return 0;
@@ -31,7 +31,7 @@ static int led_bin_configure(int type, int c) {
 
 static int led_bin_status(int type) {
   if (type == SENSORS_HW_INIT) return 0;
-  return *GPIO_PAD_DIR1 & *GPIO_DATA_SEL1 & (1UL << 10);
+  return *GPIO_PAD_DIR1 & *GPIO_DATA_SEL1 & (1UL << 11);
 }
 
 SENSORS_SENSOR(led_bin, "LED_B", led_bin_value, led_bin_configure, led_bin_status);
