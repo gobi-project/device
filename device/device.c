@@ -72,6 +72,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
     
     if (ev == sensors_event) {
       if (data == &externbutton_sensor) {
+        res_btn.trigger();
         printf("extern button \n");
       }
       if (data == &button_sensor) {
