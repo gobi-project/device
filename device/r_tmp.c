@@ -90,10 +90,10 @@ static int tmp_configure(int type, int c) {
   switch (type) {
     case SENSORS_HW_INIT:
       if (c) {
-        i2c_disable;
-      } else {
         i2c_enable();
         set_configuration(1, 0); // every 1 second, 12bit precision
+      } else {
+        i2c_disable;
       }
       return 1;
     default:
