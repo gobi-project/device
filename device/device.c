@@ -28,11 +28,12 @@
 #include "r_flasher.c"
 #include "r_led_bin.c"
 #include "r_led_dim.c"
-#include "r_tmp.c"
+//#include "r_tmp.c"
 #include "r_button_ex.c"
+#include "r_lux.c"
 // Sensoren und Resourcen einfügen - END
 
-SENSORS(&button_sensor, &externbutton_sensor, &led_bin, &led_dim, &tmp);
+SENSORS(&button_sensor, &externbutton_sensor, &led_bin, &led_dim,/* &tmp,*/ &lux);
 
 // Start Process
 PROCESS(server_firmware, "Server Firmware");
@@ -60,8 +61,9 @@ PROCESS_THREAD(server_firmware, ev, data) {
     rest_activate_resource(&res_flasher, "f");
     rest_activate_resource(&res_led_bin, "led_b");
     rest_activate_resource(&res_led_dim, "led_d");
-    rest_activate_resource(&res_tmp, "tmp");
     rest_activate_resource(&res_btn, "btn");
+    //rest_activate_resource(&res_tmp, "tmp");
+    rest_activate_resource(&res_lux, "lux");
     // Resourcen aktivieren - END
   leds_off(LEDS_GREEN);
 
@@ -69,7 +71,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
 
   while(1) {
     PROCESS_WAIT_EVENT();
-    
+
     if (ev == sensors_event) {
       if (data == &externbutton_sensor) {
         res_btn.trigger();
