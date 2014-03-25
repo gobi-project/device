@@ -26,14 +26,15 @@
 // Sensoren und Resourcen einfügen - BEGIN
 #include "r_device.c"
 #include "r_flasher.c"
-#include "r_led_bin.c"
+//#include "r_led_bin.c"
 #include "r_led_dim.c"
 //#include "r_tmp.c"
 #include "r_button_ex.c"
-#include "r_lux.c"
+//#include "r_lux.c"
+#include "r_dht.c"
 // Sensoren und Resourcen einfügen - END
 
-SENSORS(&button_sensor, &externbutton_sensor, &led_bin, &led_dim,/* &tmp,*/ &lux);
+SENSORS(&button_sensor, &externbutton_sensor, /*&led_bin,*/ &led_dim, &dht /*, &tmp, &lux*/);
 
 // Start Process
 PROCESS(server_firmware, "Server Firmware");
@@ -59,11 +60,13 @@ PROCESS_THREAD(server_firmware, ev, data) {
     rest_activate_resource(&res_device, "d");
     rest_activate_resource(&res_time, "time");
     rest_activate_resource(&res_flasher, "f");
-    rest_activate_resource(&res_led_bin, "led_b");
+    //rest_activate_resource(&res_led_bin, "led_b");
     rest_activate_resource(&res_led_dim, "led_d");
     rest_activate_resource(&res_btn, "btn");
+    rest_activate_resource(&res_dht_hum, "hum");
+    rest_activate_resource(&res_dht_tmp, "tmp");
     //rest_activate_resource(&res_tmp, "tmp");
-    rest_activate_resource(&res_lux, "lux");
+    //rest_activate_resource(&res_lux, "lux");
     // Resourcen aktivieren - END
   leds_off(LEDS_GREEN);
 
