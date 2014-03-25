@@ -6,16 +6,14 @@
 #include "i2c.h"
 
 
-#ifndef Digital_Light_TSL2561_H
-#define Digital_Light_TSL2561_H
+#ifndef TSL2561_H
+#define TSL2561_H
 
-#define  TSL2561_Control  0x80
-#define  TSL2561_Timing   0x81 
-#define  TSL2561_Interrupt 0x86
-#define  TSL2561_DATA0LOW 0x8C
-#define  TSL2561_DATA0HIGH 0x8D
-#define  TSL2561_DATA1LOW 0x8E
-#define  TSL2561_DATA1HIGH 0x8F
+#define  TSL2561_CONTROL  0x80
+#define  TSL2561_TIMING   0x81 
+#define  TSL2561_INTERRUPT 0x86
+#define  TSL2561_DATA0 0xAC
+#define  TSL2561_DATA1 0xAE
 
 #define TSL2561_ADDR  0x29       //device address
 
@@ -24,6 +22,10 @@
 #define CH_SCALE 10            // scale channel values by 2^10
 #define CHSCALE_TINT0 0x7517   // 322/11 * 2^CH_SCALE
 #define CHSCALE_TINT1 0x0fe7   // 322/81 * 2^CH_SCALE
+
+#define LUX_TIMER 1
+#define LUX_GAIN 0
+#define LUX_TYPE 1
 
 #define K1T 0x0040   // 0.125 * 2^RATIO_SCALE
 #define B1T 0x01f2   // 0.0304 * 2^LUX_SCALE
@@ -75,109 +77,40 @@
 #define B8C 0x0000   // 0.000 * 2^LUX_SCALE
 #define M8C 0x0000   // 0.000 * 2^LUX_SCALE
 
-#endif // Digital_Light_TSL2561_H
-
-
-static void lux_init()
-{
-  uint8_t tx_buf[] = {
-    TSL2561_Control, 0x03,  //power on
-    TSL2561_Timing, 0x11,   //first: high gain mode, second: integration time 101ms
-    TSL2561_Interrupt, 0x00 
-  };
-
-  i2c_transmitinit(TSL2561_ADDR, 2, &tx_buf[0]);
-  while( !i2c_transferred() );
-
-  i2c_transmitinit(TSL2561_ADDR, 2, &tx_buf[2]);
-  while( !i2c_transferred() );
-
-  i2c_transmitinit(TSL2561_ADDR, 2, &tx_buf[4]);
-  while( !i2c_transferred() );
-
-
-  PRINTF("finished init, check status \n");
-  
-  uint8_t results[1];
-  uint8_t reg[1];
-  reg[0] = 0x0A;  //REGISTER_ID
-  i2c_transmitinit(TSL2561_ADDR, 1, reg);
-  while (!i2c_transferred()); // wait for data to arrive
-  i2c_receiveinit(TSL2561_ADDR, 1, results);
-  while (!i2c_transferred()); // wait for data to arrive
-
-  if(!(results[1] & 0x0A))
-  {
-    PRINTF("not inititialized, %02x\n", results[1]);
-  }
-  else
-  {
-    PRINTF("inititialized, %02x\n", results[1]);
-  }
-  
-}
+#endif // TSL2561_H
 
 /* SENSOR ------------------------------------------------------------------ */
 
-static int lux_value(int type) {
+static int 
+lux_value(int type) 
+{
   int lux = 0;
 
-  //read data from lux sensor
-  uint8_t ch0_low = 0;
-  uint8_t ch0_high = 0;
-  uint8_t ch1_low = 0;
-  uint8_t ch1_high = 0;
-
-  
+  //read data from lux sensor 
   uint8_t reg[1];
-  uint8_t result[1];
+  uint8_t result[2];
 
-  reg[0] = TSL2561_DATA0LOW;
-  i2c_transmitinit(TSL2561_ADDR, 1, reg);
+  reg[0] = 0xAC;
+  i2c_transmitinit( TSL2561_ADDR, 1, reg );
   while (!i2c_transferred()); // wait for data to arrive
-  i2c_receiveinit(TSL2561_ADDR, 1, result);
+  i2c_receiveinit( TSL2561_ADDR, 2, result );
   while (!i2c_transferred()); // wait for data to arrive
-  ch0_low = result[0];
+  uint16_t channel0 = result[1] * 256 + result[0];
 
-  reg[0] = TSL2561_DATA0HIGH;
-  i2c_transmitinit(TSL2561_ADDR, 1, reg);
+  reg[0] = 0xAE;
+  i2c_transmitinit( TSL2561_ADDR, 1, reg );
   while (!i2c_transferred()); // wait for data to arrive
-  i2c_receiveinit(TSL2561_ADDR, 1, result);
+  i2c_receiveinit( TSL2561_ADDR, 2, result );
   while (!i2c_transferred()); // wait for data to arrive
-  ch0_high = result[0];
-
-  reg[0] = TSL2561_DATA1LOW;
-  i2c_transmitinit(TSL2561_ADDR, 1, reg);
-  while (!i2c_transferred()); // wait for data to arrive
-  i2c_receiveinit(TSL2561_ADDR, 1, result);
-  while (!i2c_transferred()); // wait for data to arrive
-  ch1_low = result[0];
-
-  reg[0] = TSL2561_DATA1HIGH;
-  i2c_transmitinit(TSL2561_ADDR, 1, reg);
-  while (!i2c_transferred()); // wait for data to arrive
-  i2c_receiveinit(TSL2561_ADDR, 1, result);
-  while (!i2c_transferred()); // wait for data to arrive
-  ch1_high = result[0];
+  uint16_t channel1 = result[1] * 256 + result[0];
   
-  uint16_t channel0 = ch0_high * 256 + ch0_low;
-  uint16_t channel1 = ch1_high * 256 + ch1_low;
-  //finished reading
-  
-  //PRINTF( "c0l: %d\nc0h: %d\nc1l: %d\nc1h: %d", ch0_low, ch0_high, ch1_low, ch1_high );
-
-  //config
-  uint8_t tInt = 1;
-  uint8_t iGain = 0;
-  uint8_t iType = 1;
-
   int chscale = 0;
   int ratio1 = 0;
   int b = 0;
   int m = 0;
 
   //calculate lux
-  switch(tInt)
+  switch( LUX_TIMER )
   {
     case 0:  // 13.7 msec
         chscale = CHSCALE_TINT0;
@@ -190,7 +123,7 @@ static int lux_value(int type) {
       break;
   }
 
-  if(!iGain)
+  if( !LUX_GAIN )
   {
     chscale = chscale << 4; // scale 1X to 16X
   }
@@ -199,14 +132,14 @@ static int lux_value(int type) {
   channel0 = (channel0 * chscale) >> CH_SCALE;
   channel1 = (channel1 * chscale) >> CH_SCALE; 
 
-  if(channel0!= 0)
+  if( channel0 != 0 )
   {
     ratio1 = (channel1 << (RATIO_SCALE+1)) / channel0;
   } 
   // round the ratio value
   unsigned long ratio = (ratio1 + 1) >> 1;
  
-  switch (iType)
+  switch( LUX_TYPE )
   {
     case 0: // T package
         if ((ratio >= 0) && (ratio <= K1T))
@@ -257,8 +190,11 @@ static int lux_value(int type) {
   return lux;
 }
 
-static int lux_status(int type) {
-  switch (type) {
+static int 
+lux_status(int type) 
+{
+  switch (type) 
+  {
     case SENSORS_ACTIVE:
     case SENSORS_READY:
       return 1; // fix?
@@ -268,17 +204,40 @@ static int lux_status(int type) {
   return 0;
 }
 
-static int lux_configure(int type, int c) {
-  switch (type) {
+static int 
+lux_configure(int type, int c) 
+{
+  switch (type) 
+  {
     case SENSORS_HW_INIT:
-      if (c) {
-        //i2c_disable();
-
-      } else {
+      if (!c) {
         i2c_enable();
-        lux_init();
+        uint8_t tx_buf[] = {
+          TSL2561_CONTROL, 0x03,  //power on
+          TSL2561_TIMING, 0x11,   //first: high gain mode, second: integration time 101ms
+          TSL2561_INTERRUPT, 0x00 
+        };
+
+        i2c_transmitinit(TSL2561_ADDR, 2, &tx_buf[0]);
+        while( !i2c_transferred() );
+
+        i2c_transmitinit(TSL2561_ADDR, 2, &tx_buf[2]);
+        while( !i2c_transferred() );
+
+        i2c_transmitinit(TSL2561_ADDR, 2, &tx_buf[4]);
+        while( !i2c_transferred() );
+        
+        uint8_t results[1];
+        uint8_t reg[1];
+        reg[0] = 0x0A;  //REGISTER_ID
+        i2c_transmitinit(TSL2561_ADDR, 1, reg);
+        while (!i2c_transferred()); // wait for data to arrive
+        i2c_receiveinit(TSL2561_ADDR, 1, results);
+        while (!i2c_transferred()); // wait for data to arrive
+
+        return (results[1] & 0x0A); 
       }
-      return 1;
+      return 0;
     default:
       return 0;
   }
@@ -288,12 +247,13 @@ SENSORS_SENSOR(lux, "Lux", lux_value, lux_configure, lux_status); // register th
 
 /* RESOURCE ---------------------------------------------------------------- */
 
-void lux_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
+void lux_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) 
+{
   int length = 0;
 
-  uint8_t source_string[LEN_SENML_TMP]; // {"bn":"/tmp","bu":"%%degC","e":[{"v":"%d.%d"}]}
-  nvm_getVar(source_string, RES_SENML_TMP, LEN_SENML_TMP);
-  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, lux.value(SENSORS_ACTIVE) / 100, lux.value(SENSORS_ACTIVE) % 100);
+  uint8_t source_string[LEN_SENML_LUX]; // {"bn":"/lux","bu":"%%lx","e":[{"v":"%d"}]}
+  nvm_getVar(source_string, RES_SENML_LUX, LEN_SENML_LUX);
+  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, lux.value(SENSORS_ACTIVE) );
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
   REST.set_response_payload(response, buffer, length);
@@ -301,8 +261,10 @@ void lux_resource_handler(void* request, void* response, uint8_t *buffer, uint16
 
 void lux_periodic_handler();
 
-PERIODIC_RESOURCE(res_lux, "rt=\"gobi.s.tmp\";if=\"core.s\";obs", lux_resource_handler, NULL, NULL, NULL, 5 * CLOCK_SECOND, lux_periodic_handler);
+PERIODIC_RESOURCE(res_lux, "rt=\"gobi.s.lux\";if=\"core.s\";obs", lux_resource_handler, NULL, NULL, NULL, 5 * CLOCK_SECOND, lux_periodic_handler);
 
-void lux_periodic_handler() {
+void lux_periodic_handler() 
+{
   REST.notify_subscribers(&res_lux);
 }
+

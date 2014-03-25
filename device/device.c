@@ -69,10 +69,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
   PRINTF("Firmware gestartet.\n");
 
   while(1) {
-    //PROCESS_WAIT_EVENT();
-
-    printf("value: %05d \r", lux.value(0));
-
+    PROCESS_WAIT_EVENT();
 
     if (ev == sensors_event) {
       if (data == &externbutton_sensor) {
