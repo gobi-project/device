@@ -47,6 +47,8 @@
 #define LEN_SENML_HUM    46
 #define RES_SENML_TMP_F  0x1D600
 #define LEN_SENML_TMP_F  48
+#define RES_SENML_VAL    0x1D640
+#define LEN_SENML_VAL    44
 
 //Read Only Vars
 #define RES_CONFIG       0x1E000
@@ -145,6 +147,8 @@ int main(int nArgs, char **argv) {
     memcpy(output + RES_SENML_HUM, buffer, LEN_SENML_HUM);
     buffer = "{\"bn\":\"/tmp\",\"bu\":\"%%degF\",\"e\":[{\"v\":\"%d.%d\"}]}\x00";
     memcpy(output + RES_SENML_TMP_F, buffer, LEN_SENML_TMP_F);
+    buffer = "{\"bn\":\"/val\",\"bu\":\"%%\",\"e\":[{\"v\":\"%d.%d\"}]}\x00";
+    memcpy(output + RES_SENML_VAL, buffer, LEN_SENML_VAL);
 
 // Contiki-Config setzen ------------------------------------------------------
     output[RES_CONFIG + 0] = 0x22;

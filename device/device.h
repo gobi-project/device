@@ -27,6 +27,8 @@
 #define LEN_SENML_HUM    46
 #define RES_SENML_TMP_F  0x1D600
 #define LEN_SENML_TMP_F  48
+#define RES_SENML_VAL    0x1D640
+#define LEN_SENML_VAL    44
 
 //Read Only Vars
 #define RES_CONFIG       0x1E000

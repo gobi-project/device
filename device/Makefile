@@ -25,6 +25,7 @@ CFLAGS += -DBUTTON_EXT=0  # externer Button (kbi6)
 CFLAGS += -DTMP=0         # Temperatur-Sensor (i2c)
 CFLAGS += -DLUX=0         # Lux-Sensor (i2c)
 CFLAGS += -DDHT=0         # digitaler Luftfeuchtigkeit- und Temperatur-Sensor (GPIO 42)
+CFLAGS += -DPOTI=0   	  # Potentiometer (ADC0)
 
 # CFLAGS += -Wcast-align -Wall -Wstrict-prototypes -Wextra
 # http://www.gnu.org/software/gsl/manual/html_node/GCC-warning-options-for-numerical-programs.html

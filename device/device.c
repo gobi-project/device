@@ -50,6 +50,10 @@
 #if DHT
   #include "r_dht.c"
 #endif
+
+#if POTI
+  #include "r_poti.c"
+#endif  
 // Sensoren und Resourcen einfügen - END
 
 SENSORS( &button_sensor
@@ -70,6 +74,9 @@ SENSORS( &button_sensor
 #endif
 #if DHT
   , &dht 
+#endif
+#if POTI
+  , &poti
 #endif
   );
 
@@ -115,6 +122,9 @@ PROCESS_THREAD(server_firmware, ev, data) {
 #if DHT
     rest_activate_resource(&res_dht_hum, "hum");
     rest_activate_resource(&res_dht_tmp, "tmp");
+#endif
+#if POTI
+    rest_activate_resource(&res_poti, "poti");
 #endif
     // Resourcen aktivieren - END
   leds_off(LEDS_GREEN);
