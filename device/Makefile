@@ -54,7 +54,7 @@ clear:
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 erase
 
 upload:
-	../blaster/blaster 19 -t < $(CONTIKI_PROJECT)_$(TARGET).bin > \
+	../blaster/blaster 14 -t < $(CONTIKI_PROJECT)_$(TARGET).bin > \
 	$(CONTIKI_PROJECT)_e_$(TARGET).bin 2> \
 	$(CONTIKI_PROJECT)_e_$(TARGET).txt \
 	
