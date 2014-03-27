@@ -9,7 +9,7 @@
 #include <rest-engine.h>
 #include <string.h>
 
-#define DHT_PIN  43
+#define DHT_PIN  42
 #define DHT_HUMIDITY 10
 #define DHT_TEMPERATURE 11
 
@@ -17,8 +17,23 @@
 // DHT - digital humidity temperature
 /* SENSOR ------------------------------------------------------------------ */
 
-static int dht_value(int type) 
+static uint16_t dht_tmp = 0;
+static uint16_t dht_hum = 0;
+static unsigned long dht_last_call = 0;
+
+static void
+dht_read()
 {
+  if( dht_last_call == clock_seconds() )
+  {
+    printf("return");
+    return;
+  }
+  else
+  {
+    dht_last_call = clock_seconds();
+  }
+
   uint8_t data[5];
   uint8_t i = 0;
   for(i = 0; i < 5; i++)
@@ -76,21 +91,24 @@ static int dht_value(int type)
   if( data[0] + data[1] + data[2] + data[3] != data[4] )
   {
     //incorrect checksum
-    return 0;
+    return;
   }
 
-  printf("data0: %d\ndata1: %d\ndata2: %d\ndata3: %d", data[0], data[1], data[2], data[3]);
+  printf("\ndata0: %d\ndata1: %d\ndata2: %d\ndata3: %d\n", data[0], data[1], data[2], data[3]);
 
-  uint16_t humidity = data[0] * 256 + data[1];
-  uint16_t temperature = data[2] * 256 + data[3];
+  dht_hum = data[0] * 256 + data[1];
+  dht_tmp = data[2] * 256 + data[3];
+}
 
+static int dht_value(int type) 
+{
   switch( type )
   {
     case DHT_HUMIDITY:
-        return humidity;
+        return dht_hum;
       break;
     case DHT_TEMPERATURE:
-        return temperature;
+        return dht_tmp;
       break;
     default:
         return 0;
@@ -122,11 +140,14 @@ SENSORS_SENSOR(dht, "dht", dht_value, dht_configure, dht_status);
 
 void dht_hum_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) 
 {
-  int length = 0;
+  dht_read();
+  uint16_t hum = dht.value(DHT_HUMIDITY);
 
+  int length = 0;
+  
   uint8_t source_string[LEN_SENML_HUM]; // {"bn":"/hum","bu":"%%RH","e":[{"v":"%d.%d"}]}
   nvm_getVar(source_string, RES_SENML_HUM, LEN_SENML_HUM);
-  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, dht.value(DHT_HUMIDITY));
+  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, hum / 100, hum % 100);
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
   REST.set_response_payload(response, buffer, length);
@@ -134,11 +155,14 @@ void dht_hum_resource_handler(void* request, void* response, uint8_t *buffer, ui
 
 void dht_tmp_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) 
 {
+  dht_read();
+  uint16_t tmp = dht.value(DHT_TEMPERATURE);
+
   int length = 0;
 
   uint8_t source_string[LEN_SENML_TMP_F]; // {"bn":"/tmp","bu":"%%degF","e":[{"v":"%d.%d"}]}
   nvm_getVar(source_string, RES_SENML_TMP_F, LEN_SENML_TMP_F);
-  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, dht.value(DHT_TEMPERATURE));
+  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, tmp / 100, tmp % 100);
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
   REST.set_response_payload(response, buffer, length);
