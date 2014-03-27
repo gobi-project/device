@@ -54,6 +54,10 @@
 #if POTI
   #include "r_poti.c"
 #endif  
+
+#if RGB
+  #include "r_rgb.c"
+#endif 
 // Sensoren und Resourcen einfügen - END
 
 SENSORS( &button_sensor
@@ -77,6 +81,9 @@ SENSORS( &button_sensor
 #endif
 #if POTI
   , &poti
+#endif
+#if RGB
+  , &rgb
 #endif
   );
 
@@ -126,10 +133,15 @@ PROCESS_THREAD(server_firmware, ev, data) {
 #if POTI
     rest_activate_resource(&res_poti, "poti");
 #endif
+#if DMX
+    rest_activate_resource(&res_rgb, "rgb");
+#endif
     // Resourcen aktivieren - END
   leds_off(LEDS_GREEN);
 
   PRINTF("Firmware gestartet.\n");
+
+  rgb.configure( SENSORS_ACTIVE, 0xCC00FF);
 
   while(1) {
     PROCESS_WAIT_EVENT();

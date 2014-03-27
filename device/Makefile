@@ -9,7 +9,7 @@ all: $(CONTIKI_PROJECT) copy
 WITH_UIP6=1
 UIP_CONF_IPV6=1
 
-# CFLAGS += -DWITH_DTLS=1
+CFLAGS += -DWITH_DTLS=1
 CFLAGS += -DREST=coap_rest_implementation
 CFLAGS += -DUIP_CONF_TCP=0
 # ??? CFLAGS += -DDEBUG_PRINT=1
@@ -26,6 +26,7 @@ CFLAGS += -DTMP=0         # Temperatur-Sensor (i2c)
 CFLAGS += -DLUX=0         # Lux-Sensor (i2c)
 CFLAGS += -DDHT=0         # digitaler Luftfeuchtigkeit- und Temperatur-Sensor (GPIO 42)
 CFLAGS += -DPOTI=0   	  # Potentiometer (ADC0)
+CFLAGS += -DRGB=1         # RGB Licht per DMX (GPIO 42)
 
 # CFLAGS += -Wcast-align -Wall -Wstrict-prototypes -Wextra
 # http://www.gnu.org/software/gsl/manual/html_node/GCC-warning-options-for-numerical-programs.html
@@ -54,7 +55,7 @@ clear:
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 erase
 
 upload:
-	../blaster/blaster 19 -t < $(CONTIKI_PROJECT)_$(TARGET).bin > \
+	../blaster/blaster 14 -t < $(CONTIKI_PROJECT)_$(TARGET).bin > \
 	$(CONTIKI_PROJECT)_e_$(TARGET).bin 2> \
 	$(CONTIKI_PROJECT)_e_$(TARGET).txt \
 	
