@@ -57,7 +57,7 @@ void button_resource_handler(void* request, void* response, uint8_t *buffer, uin
 
   int length = 0;
   
-  uint8_t source_string[LEN_SENML_BUTTON]; // {"bn":"/button","bu":"B","e":[{"v":"%d"}]}
+  uint8_t source_string[LEN_SENML_BUTTON]; // {"bn":"/btn","bu":"B","e":[{"v":"%d"}]}
   nvm_getVar(source_string, RES_SENML_BUTTON, LEN_SENML_BUTTON);
   length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, result);
 

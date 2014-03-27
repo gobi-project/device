@@ -30,7 +30,7 @@
 #define RES_SENML_VAL    0x1D640
 #define LEN_SENML_VAL    44
 #define RES_SENML_BUTTON 0x1D680
-#define LEN_SENML_BUTTON 43
+#define LEN_SENML_BUTTON 40
 
 //Read Only Vars
 #define RES_CONFIG       0x1E000
