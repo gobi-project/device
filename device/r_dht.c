@@ -26,7 +26,6 @@ dht_read()
 {
   if( dht_last_call == clock_seconds() )
   {
-    printf("return");
     return;
   }
   else
@@ -93,8 +92,6 @@ dht_read()
     //incorrect checksum
     return;
   }
-
-  printf("\ndata0: %d\ndata1: %d\ndata2: %d\ndata3: %d\n", data[0], data[1], data[2], data[3]);
 
   dht_hum = data[0] * 256 + data[1];
   dht_tmp = data[2] * 256 + data[3];

@@ -17,6 +17,15 @@ CFLAGS += -DSTACKMONITOR=1  # Initialiserung um den maximal benötigten Stack er
 CFLAGS += -DHEAPMONITOR=1   # Initialiserung um den maximal benötigten Heap ermitteln zu können
 CFLAGS += -DRADIODEBUGLED=1 # Aktiviert die rote LED bei Datentransfer über 802.15.4
 
+#sensors
+CFLAGS += -DLEDB=0        # binäre LED (GPIO 43)
+CFLAGS += -DLEDD=0		  # dimmbare LED (TMR2)
+#CFLAGS += -DBUTTON2=0     # Button 2 auf dem Econotag
+CFLAGS += -DBUTTON_EXT=0  # externer Button (kbi6)
+CFLAGS += -DTMP=0         # Temperatur-Sensor (i2c)
+CFLAGS += -DLUX=0         # Lux-Sensor (i2c)
+CFLAGS += -DDHT=0         # digitaler Luftfeuchtigkeit- und Temperatur-Sensor (GPIO 42)
+
 # CFLAGS += -Wcast-align -Wall -Wstrict-prototypes -Wextra
 # http://www.gnu.org/software/gsl/manual/html_node/GCC-warning-options-for-numerical-programs.html
 

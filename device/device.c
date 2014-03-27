@@ -1,6 +1,6 @@
 #include "device.h"
-#include "button-sensor.h"
 #include "leds.h"
+#include "button-sensor.h"
 #include "clock.h"
 #include "er-coap-engine.h"
 #include "flash-store.h"
@@ -26,15 +26,52 @@
 // Sensoren und Resourcen einfügen - BEGIN
 #include "r_device.c"
 #include "r_flasher.c"
-//#include "r_led_bin.c"
-#include "r_led_dim.c"
-//#include "r_tmp.c"
-#include "r_button_ex.c"
-//#include "r_lux.c"
-#include "r_dht.c"
+
+#if BUTTON_EXT
+  #include "r_button_ex.c"
+#endif
+
+#if LEDB
+  #include "r_led_bin.c"
+#endif  
+
+#if LEDD
+  #include "r_led_dim.c"
+#endif
+
+#if TMP
+  #include "r_tmp.c"
+#endif
+
+#if LUX
+  #include "r_lux.c"
+#endif
+
+#if DHT
+  #include "r_dht.c"
+#endif
 // Sensoren und Resourcen einfügen - END
 
-SENSORS(&button_sensor, &externbutton_sensor, /*&led_bin,*/ &led_dim, &dht /*, &tmp, &lux*/);
+SENSORS( &button_sensor
+#if BUTTON_EXT
+  , &externbutton_sensor
+#endif
+#if LEDB
+  , &led_bin
+#endif
+#if LEDD
+  , &led_dim
+#endif
+#if TMP
+  , &tmp
+#endif
+#if LUX
+  , &lux
+#endif
+#if DHT
+  , &dht 
+#endif
+  );
 
 // Start Process
 PROCESS(server_firmware, "Server Firmware");
@@ -49,24 +86,36 @@ PROCESS_THREAD(server_firmware, ev, data) {
 
   leds_arch_init();
   leds_on(LEDS_GREEN);
-    #if RADIODEBUGLED
+#if RADIODEBUGLED
       /* control TX_ON with the radio */
       GPIO->FUNC_SEL.GPIO_44 = 2;
       GPIO->PAD_DIR.GPIO_44 = 1;
-    #endif
+#endif
     nvm_init();
     // Resourcen aktivieren - BEGIN
     rest_init_engine();
     rest_activate_resource(&res_device, "d");
     rest_activate_resource(&res_time, "time");
     rest_activate_resource(&res_flasher, "f");
-    //rest_activate_resource(&res_led_bin, "led_b");
-    rest_activate_resource(&res_led_dim, "led_d");
+#if BUTTON_EXT
     rest_activate_resource(&res_btn, "btn");
+#endif
+#if LEDB
+    rest_activate_resource(&res_led_bin, "led_b");
+#endif
+#if LEDD
+    rest_activate_resource(&res_led_dim, "led_d");
+#endif
+#if TMP
+    rest_activate_resource(&res_tmp, "tmp");
+#endif
+#if LUX
+    rest_activate_resource(&res_lux, "lux");
+#endif
+#if DHT
     rest_activate_resource(&res_dht_hum, "hum");
     rest_activate_resource(&res_dht_tmp, "tmp");
-    //rest_activate_resource(&res_tmp, "tmp");
-    //rest_activate_resource(&res_lux, "lux");
+#endif
     // Resourcen aktivieren - END
   leds_off(LEDS_GREEN);
 
@@ -76,10 +125,12 @@ PROCESS_THREAD(server_firmware, ev, data) {
     PROCESS_WAIT_EVENT();
 
     if (ev == sensors_event) {
+#if BUTTON_EXT      
       if (data == &externbutton_sensor) {
         res_btn.trigger();
         printf("extern button \n");
       }
+#endif
       if (data == &button_sensor) {
         printf("board button \n");
         uip_ipaddr_t *addr = uip_ds6_defrt_choose();
@@ -100,7 +151,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
           PRINTF("Gateway unbekannt!\n");
         }
 
-        #if DEBUG
+#if DEBUG
           PRINTF("\nFrei: %u Byte\n", 0x418000 - (uint32_t) &__heap_end__);
 
           // Folgende Ausgaben möglich durch Speicherinitialisierung in
@@ -125,7 +176,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
           PRINTF("Nie benutzer Heap >= %d Byte\n", (uint32_t) &__heap_end__ - p - 4);
 
           PRINTF("\n");
-        #endif
+#endif
       }
     }
   }
