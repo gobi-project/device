@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <uuid/uuid.h>
+#include <libconfig.h>
 #include <time.h>
 #include <qrencode.h>
 
@@ -79,35 +80,90 @@ void writeImg(char *file, unsigned char *data, int width);
 // ----------------------------------------------------------------------------
 
 int main(int nArgs, char **argv) {
-    if (nArgs < 2 || nArgs > 3) {
-        fprintf(stderr, "Parameter erforderlich: ./blaster <MAC-Endnummer> [-t]\n");
-        fprintf(stderr, "Bei -t wird Standard-PSK ABCDEFGHIJKLMNOP gesetzt.\n");
+    unsigned int c, i;
+    unsigned int buf[64];
+    char *anschars = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_-";
+
+    config_t cfg;
+    config_init(&cfg);
+
+    if (nArgs != 2) {
+        fprintf(stderr, "1 Parameter erwartet: ./blaster <config.cfg>\n");
+        fprintf(stderr, "Vorlage wurde in config.cfg erstellt.\n");
+
+        config_setting_t *setting;
+        config_setting_t *root = config_root_setting(&cfg);
+
+        setting = config_setting_add(root, "mac", CONFIG_TYPE_INT);
+        config_setting_set_int(setting, 0xFF);
+
+        unsigned char uuid_bin[16];
+        uuid_generate(uuid_bin);
+        char uuid[37];
+        uuid_unparse(uuid_bin, uuid);
+        setting = config_setting_add(root, "uuid", CONFIG_TYPE_STRING);
+        config_setting_set_string(setting, uuid);
+
+        char psk[17];
+        psk[16] = '\0';
+        FILE *fd = fopen("/dev/urandom","r");
+        if (fd == NULL) {
+            perror("Öffnen von /dev/urandom fehlgeschlagen: ");
+            return -1;
+        }
+        for (i = 0; i < 16; i++) {
+            int c;
+            while ((c = fgetc(fd)) == EOF);
+            psk[i] = anschars[c % 64];
+        }
+        if (fclose(fd) == -1) {
+            perror("Fehler beim Schließen von /dev/urandom\n");
+        }
+        setting = config_setting_add(root, "psk", CONFIG_TYPE_STRING);
+        config_setting_set_string(setting, psk);
+
+        setting = config_setting_add(root, "name", CONFIG_TYPE_STRING);
+        config_setting_set_string(setting, "GOBI-Device");
+
+        setting = config_setting_add(root, "model", CONFIG_TYPE_STRING);
+        config_setting_set_string(setting, "GOBI-ABCD-1234");
+
+        config_write_file(&cfg, "config.cfg");
+
         return -1;
     }
 
-    char *end;
-    long int m = strtol(argv[1], &end, 16);
-    if (*end != '\0' || m < 1 || m > 40) {
-        fprintf(stderr, "Es sind nur MAC-Endnummern von 1 bis 28 zulässig.\n");
-        return -1;
+    const char *str_val;
+    long int mac_end;
+
+    // qrdata = "UUID:PSK\0"
+    char qrdata[54];
+    qrdata[36] = ':';
+    qrdata[53] = '\0';
+
+    if (access(argv[1], F_OK) == 0) {
+        config_read_file(&cfg, argv[1]);
     }
 
-    if (nArgs == 3 && strcmp(argv[2], "-t") != 0) {
-        fprintf(stderr, "Ungültiger 2. Parameter.\n");
+    config_lookup_int(&cfg, "mac", &mac_end);
+    if (mac_end < 1 || mac_end > 255) {
+        fprintf(stderr, "Es sind nur MAC-Endnummern von 1 bis 255 zulässig.\n");
         return -1;
     }
 
     unsigned char output[131072];
-
-    unsigned int c, i;
     for (i = 8; (c = getchar()) != EOF; i++) {
         output[i] = (unsigned char) c;
     }
 
+    char filename[40];
+    sprintf(filename, "d%02x_e_econotag.txt", (unsigned char) mac_end);
+    int info_txt = open(filename, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+
 // Ursprüngliche Länge der Firmware setzen im little Endian Encoding ---------
     unsigned int length = i - 8;
     memcpy(output + 4, (const void *) &length, 4);
-    fprintf(stderr, "Länge: %u = 0x%08x\n", length, length);
+    write(info_txt, buf, sprintf((char *) buf, "Länge: %u = 0x%08x\n", length, length));
 
 // Rest zur initlialisierung zunächst mit 0x00 füllen
     for (; i < 0x1F000; i++) output[i] = 0x00;
@@ -156,10 +212,10 @@ int main(int nArgs, char **argv) {
     output[RES_CONFIG + 2] = 1;
     output[RES_CONFIG + 3] = 0;
 
-    unsigned char mac[8] = {0x02, 0x00, 0x00, 0x00, 0x60, 0xB1, 0x00, (unsigned char) m};
+    unsigned char mac[8] = {0x02, 0x00, 0x00, 0x00, 0x60, 0xB1, 0x00, (unsigned char) mac_end};
     for (i = 0; i < 8; i++) output[RES_CONFIG + 8 + i] = mac[7 - i];
-    fprintf(stderr, "MAC-Adresse: %02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x\n",
-            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], mac[6], mac[7]);
+    write(info_txt, buf, sprintf((char *) buf, "MAC-Adresse: %02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x\n",
+                                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], mac[6], mac[7]));
 
     output[RES_CONFIG + 16] = 15;
     output[RES_CONFIG + 17] = 17;
@@ -171,34 +227,18 @@ int main(int nArgs, char **argv) {
     output[RES_CONFIG + 23] = 0;
 
 // UUID setzen ----------------------------------------------------------------
+    config_lookup_string(&cfg, "uuid", &str_val);
+    memcpy(qrdata, str_val, 36);
     unsigned char uuid_bin[16];
-    uuid_generate(uuid_bin);
+    uuid_parse(str_val, uuid_bin);
     for (i = 0; i < 16; i++) output[RES_UUID + i] = uuid_bin[i];
-
-    char uuid[37];
-    uuid_unparse(uuid_bin, uuid);
-    fprintf(stderr, "UUID: %s\n", uuid);
+    write(info_txt, buf, sprintf((char *) buf, "UUID: %s\n", str_val));
 
 // PSK setzen -----------------------------------------------------------------
-    unsigned char psk[16] = "ABCDEFGHIJKLMNOP";
-    char *anschars = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_-";
-    if (nArgs == 2) {
-        FILE *fd = fopen("/dev/urandom","r");
-        if (fd == NULL) {
-            perror("Öffnen von /dev/urandom fehlgeschlagen: ");
-            return -1;
-        }
-        for (i = 0; i < 16; i++) {
-            int c;
-            while ((c = fgetc(fd)) == EOF);
-            psk[i] = anschars[((unsigned char) c) % 64];
-        }
-        if (fclose(fd) == -1) printf("Fehler beim Schließen von /dev/urandom\n");
-    }
-    for (i = 0; i < 16; i++) {
-        output[RES_PSK + i] = psk[i];
-    }
-    fprintf(stderr, "PSK: %.*s\n", 16, psk);
+    config_lookup_string(&cfg, "psk", &str_val);
+    memcpy(qrdata + 37, str_val, 16);
+    for (i = 0; i < 16; i++) output[RES_PSK + i] = str_val[i];
+    write(info_txt, buf, sprintf((char *) buf, "PSK: %.*s\n", 16, str_val));
 
 // Zulässige Zeichen für Session und PSK setzen (alphanum Zeichen + "_" + "-")
     memcpy(output + RES_ANSCHARS, anschars, LEN_ANSCHARS);
@@ -237,34 +277,28 @@ int main(int nArgs, char **argv) {
 // Name setzen ----------------------------------------------------------------
     char *name = "DTLS-Testserver";
     memcpy(output + RES_NAME, name, LEN_NAME);
-    fprintf(stderr, "Name: %s\n", name);
+    write(info_txt, buf, sprintf((char *) buf, "Name: %s\n", name));
 
 // Model setzen ---------------------------------------------------------------
     char *model = "LARS-ABCD-1234";
     memcpy(output + RES_MODEL, model, LEN_MODEL);
-    fprintf(stderr, "Model: %s\n", model);
+    write(info_txt, buf, sprintf((char *) buf, "Model: %s\n", model));
 
 // Zeit setzen ----------------------------------------------------------------
     time_t my_time = time(NULL) + 37;
     memcpy(output + RES_FLASHTIME, (void *) &my_time, LEN_FLASHTIME);
     struct tm *timeinfo = localtime(&my_time);
-    char b[64];
-    memset(b, 0, 64);
-    strftime(b, 64, "Erzeugt am %d.%m.%Y um %H:%M:%S", timeinfo);
-    fprintf(stderr, "%s\n", b);
+    write(info_txt, buf, strftime((char *) buf, 64, "Erzeugt am %d.%m.%Y um %H:%M:%S", timeinfo));
 
 // Ausgeben -------------------------------------------------------------------
     for (i = 4; i < 0x1F000; i++) putchar(output[i]);
 
 // QR-Code generieren ---------------------------------------------------------
-    char qrdata[54];
-    memcpy(qrdata, uuid, 36);
-    qrdata[36] = ':';
-    memcpy(qrdata + 37, psk, 16);
-    qrdata[53] = '\0';
     QRcode *code = QRcode_encodeString8bit(qrdata, 3, QR_ECLEVEL_L);
-    writeImg("qr-code.pbm", code->data, code->width);
+    sprintf(filename, "d%02x_e_econotag.pbm", (unsigned char) mac_end);
+    writeImg(filename, code->data, code->width);
 
+    close(info_txt);
     return 0;
 }
 

@@ -5,13 +5,13 @@ HEADERS =
 all: blaster
 
 depend:
-	sudo apt-get install uuid-dev libqrencode-dev
+	sudo apt-get install libconfig8-dev uuid-dev libqrencode-dev
 
 %.o: %.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 blaster: main.o
-	$(CC) $(CFLAGS) -o $@ $^ -luuid -lqrencode
+	$(CC) $(CFLAGS) -o $@ $^ -lconfig -luuid -lqrencode
 
 clean:
 	rm *.o blaster
