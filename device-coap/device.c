@@ -27,8 +27,6 @@
 #include "resource.c"
 // Sensoren und Resourcen einfügen - END
 
-SENSORS(&button_sensor);
-
 // Start Process
 PROCESS(server_firmware, "Server Firmware");
 AUTOSTART_PROCESSES(&server_firmware);

@@ -5,7 +5,7 @@
 #include <er-coap-separate.h>
 #include <er-coap-transactions.h>
 
-#include "device.h"
+#include "storage.h"
 #include "mc1322x.h"
 #include "clock.h"
 #include "ecc.h"
@@ -41,9 +41,8 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
     //*************************************************************************
     if (uri_path[2] == 'n' && uri_path[3] == 'a') {
         nvm_getVar(buffer, RES_NAME, LEN_NAME);
-        buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
         REST.set_header_content_type(response, TEXT_PLAIN);
-        REST.set_response_payload(response, buffer, LEN_NAME);
+        REST.set_response_payload(response, buffer, strlen(buffer));
     }
 
     //*************************************************************************
@@ -51,9 +50,8 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
     //*************************************************************************
     if (uri_path[2] == 'm') {
         nvm_getVar(buffer, RES_MODEL, LEN_MODEL);
-        buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
         REST.set_header_content_type(response, TEXT_PLAIN);
-        REST.set_response_payload(response, buffer, LEN_MODEL);
+        REST.set_response_payload(response, buffer, strlen(buffer));
         return;
     }
 
@@ -62,7 +60,6 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
     //*************************************************************************
     if (uri_path[2] == 'u') {
         nvm_getVar(buffer, RES_UUID, LEN_UUID);
-        buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
         REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
         REST.set_response_payload(response, buffer, LEN_UUID);
     }
@@ -82,7 +79,6 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
     //*************************************************************************
     if (uri_path[2] == 'p') {
         getPSK(buffer);
-        buffer[REST_MAX_CHUNK_SIZE - 1] = 0;
         REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
         REST.set_response_payload(response, buffer, LEN_PSK);
     }

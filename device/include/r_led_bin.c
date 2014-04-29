@@ -1,4 +1,4 @@
-#include "device.h"
+#include "storage.h"
 #include "flash-store.h"
 
 #include <lib/sensors.h>

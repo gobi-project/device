@@ -6,7 +6,7 @@
  * Original Author  : Hedde Bosman (heddebosman@incas3.eu)
  */
 
-#include "device.h"
+#include "storage.h"
 #include "flash-store.h"
 
 #include "contiki.h"
