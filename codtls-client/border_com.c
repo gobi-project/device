@@ -18,7 +18,7 @@ void border_getNodes(struct ip_list **list) {
     int sockfd;
 
     struct in6_addr border_ip;
-    inet_pton(AF_INET6, "aaaa::60b1:0022", &border_ip);
+    inet_pton(AF_INET6, "aaaa::60b1:0003", &border_ip);
 
     struct sockaddr_in6 border_addr;
     memset(&border_addr, 0, sizeof(border_addr));

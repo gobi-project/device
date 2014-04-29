@@ -43,18 +43,18 @@ ifeq ($(PREFIX),)
 endif
 
 clear:
-	-rm d22_e_econotag.bin
-	-rm d22_e_econotag.txt
-	-rm d22_e_econotag.pbm
+	-rm d03_e_econotag.bin
+	-rm d03_e_econotag.txt
+	-rm d03_e_econotag.pbm
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 erase
 
 upload:
 	../blaster/blaster $(CONTIKI_PROJECT).cfg \
 	< $(CONTIKI_PROJECT)_$(TARGET).bin \
-	> d22_e_econotag.bin
+	> d03_e_econotag.bin
 	
 	$(LIBMC1322X)/tools/mc1322x-load \
-	-f $(LIBMC1322X)/tests/flasher_$(TARGET).bin -s d22_e_econotag.bin \
+	-f $(LIBMC1322X)/tests/flasher_$(TARGET).bin -s d03_e_econotag.bin \
 	-c 'sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 reset' \
 	-t /dev/ttyUSB1 -l -e
 
