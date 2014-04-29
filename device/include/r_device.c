@@ -5,7 +5,7 @@
 #include <er-coap-separate.h>
 #include <er-coap-transactions.h>
 
-#include "device.h"
+#include "storage.h"
 #include "mc1322x.h"
 #include "clock.h"
 #include "ecc.h"
