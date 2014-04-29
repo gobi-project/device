@@ -69,9 +69,9 @@
 #define RES_ECC_ORDER    0x1E0C0
 #define LEN_ECC_ORDER    0x20
 #define RES_NAME         0x1E0E0
-#define LEN_NAME         0x0F
+#define LEN_NAME         0x20
 #define RES_MODEL        0x1E100
-#define LEN_MODEL        0x0E
+#define LEN_MODEL        0x20
 #define RES_FLASHTIME    0x1E120
 #define LEN_FLASHTIME    0x04
 
@@ -153,7 +153,7 @@ int main(int nArgs, char **argv) {
         return -1;
     }
 
-    unsigned char output[131072];
+    char output[131072];
     for (i = 8; (c = getchar()) != EOF; i++) {
         output[i] = (unsigned char) c;
     }
@@ -279,14 +279,14 @@ int main(int nArgs, char **argv) {
     order[7] = 0xFFFFFFFF;
 
 // Name setzen ----------------------------------------------------------------
-    char *name = "DTLS-Testserver";
-    memcpy(output + RES_NAME, name, LEN_NAME);
-    write(info_txt, buf, sprintf((char *) buf, "Name: %s\n", name));
+    config_lookup_string(&cfg, "name", &str_val);
+    snprintf(output + RES_NAME, LEN_NAME, "%s", str_val);
+    write(info_txt, buf, snprintf((char *) buf, LEN_NAME, "Name: %s\n", str_val));
 
 // Model setzen ---------------------------------------------------------------
-    char *model = "LARS-ABCD-1234";
-    memcpy(output + RES_MODEL, model, LEN_MODEL);
-    write(info_txt, buf, sprintf((char *) buf, "Model: %s\n", model));
+    config_lookup_string(&cfg, "model", &str_val);
+    snprintf(output + RES_MODEL, LEN_MODEL, "%s", str_val);
+    write(info_txt, buf, snprintf((char *) buf, LEN_MODEL, "Model: %s\n", str_val));
 
 // Zeit setzen ----------------------------------------------------------------
     time_t my_time = time(NULL) + 37;

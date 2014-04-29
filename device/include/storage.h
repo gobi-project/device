@@ -48,9 +48,9 @@
 #define RES_ECC_ORDER    0x1E0C0
 #define LEN_ECC_ORDER    0x20
 #define RES_NAME         0x1E0E0
-#define LEN_NAME         0x0F
+#define LEN_NAME         0x20
 #define RES_MODEL        0x1E100
-#define LEN_MODEL        0x0E
+#define LEN_MODEL        0x20
 #define RES_FLASHTIME    0x1E120
 #define LEN_FLASHTIME    0x04
 
