@@ -1,0 +1,4 @@
+*.d
+*.pbm
+/blaster/blaster
+/blaster/main.o
