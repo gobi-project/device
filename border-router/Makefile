@@ -3,6 +3,7 @@ CONTIKI = ../../contiki
 
 CONTIKI_PROJECT = border-router
 TARGET = econotag
+CLEAN = *.d
 
 all: $(CONTIKI_PROJECT) 
 

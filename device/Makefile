@@ -3,6 +3,7 @@ CONTIKI = ../../contiki
 
 CONTIKI_PROJECT = d28 da0 da1 da2 da3 da4 da5 da6 da7 da8 da9
 TARGET = econotag
+CLEAN = *.d
 
 all: $(CONTIKI_PROJECT) copy
 
