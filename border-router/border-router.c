@@ -95,6 +95,10 @@ PROCESS_THREAD(webserver_nogui_process, ev, data)
 {
   PROCESS_BEGIN();
 
+  /* control TX_ON with the radio */
+  GPIO->FUNC_SEL.GPIO_44 = 2;
+  GPIO->PAD_DIR.GPIO_44 = 1;
+
   httpd_init();
 
   while(1) {

@@ -3,6 +3,7 @@ CONTIKI = ../../contiki
 
 CONTIKI_PROJECT = d28 da0 da1 da2 da3 da4 da5 da6 da7 da8 da9
 TARGET = econotag
+CLEAN = *.d d*_e_$(TARGET).bin d*_e_$(TARGET).txt d*_e_$(TARGET).pbm
 
 all: $(CONTIKI_PROJECT) copy
 
@@ -39,9 +40,6 @@ copy:
 #	cp $(CONTIKI_PROJECT)_$(TARGET).bin ../codtls-client/$(CONTIKI_PROJECT)_$(TARGET).bin
 
 clear:
-	-rm d*_e_$(TARGET).bin
-	-rm d*_e_$(TARGET).txt
-	-rm d*_e_$(TARGET).pbm
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 erase
 
 upload:
