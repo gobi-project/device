@@ -43,6 +43,9 @@ clear:
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 erase
 
 upload:
+ifndef MAC
+	${info MAC not defined. Use 'make upload MAC=XX'}
+else
 	../blaster/blaster d$(MAC).cfg < d$(MAC)_$(TARGET).bin > \
 	d$(MAC)_e_$(TARGET).bin
 	
@@ -53,6 +56,7 @@ upload:
 	-t /dev/ttyUSB1 -l -e \
 	
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 reset
+endif
 
 listen:
 	while true; do cat /dev/ttyUSB1; done
