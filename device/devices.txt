@@ -1,3 +1,4 @@
+19  DTLS-Test-Device. Nur die beiden Onboard-Buttons sind aktiv
 28	Temperature-Sensor	TMP102, I2C, RX and TX LED, Powersupply via USB
 A0	Temperature-Sensor	TMP102, I2C, RX and TX LED, Powersupply via USB
 A1	LUX-Sensor	I2C, RX and TX LED, Powersupply via USB

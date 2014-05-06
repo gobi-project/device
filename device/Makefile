@@ -1,9 +1,13 @@
 LIBMC1322X = ../../libmc1322x
 CONTIKI = ../../contiki
 
-CONTIKI_PROJECT = d28 da0 da1 da2 da3 da4 da5 da6 da7 da8 da9
+CONTIKI_PROJECT = d19 d28 da0 da1 da2 da3 da4 da5 da6 da7 da8 da9
 TARGET = econotag
+<<<<<<< HEAD
 CLEAN = *.d
+=======
+CLEAN = *.d d*_e_$(TARGET).bin d*_e_$(TARGET).txt d*_e_$(TARGET).pbm
+>>>>>>> fc75da2be3b39cd55ef0edb3a95e02dfb00480f2
 
 all: $(CONTIKI_PROJECT) copy
 
@@ -40,12 +44,12 @@ copy:
 #	cp $(CONTIKI_PROJECT)_$(TARGET).bin ../codtls-client/$(CONTIKI_PROJECT)_$(TARGET).bin
 
 clear:
-	-rm d*_e_$(TARGET).bin
-	-rm d*_e_$(TARGET).txt
-	-rm d*_e_$(TARGET).pbm
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 erase
 
 upload:
+ifndef MAC
+	${info MAC not defined. Use 'make upload MAC=XX'}
+else
 	../blaster/blaster d$(MAC).cfg < d$(MAC)_$(TARGET).bin > \
 	d$(MAC)_e_$(TARGET).bin
 	
@@ -56,6 +60,7 @@ upload:
 	-t /dev/ttyUSB1 -l -e \
 	
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 reset
+endif
 
 listen:
 	while true; do cat /dev/ttyUSB1; done
