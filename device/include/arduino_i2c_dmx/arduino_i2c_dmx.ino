@@ -10,6 +10,9 @@
 #define RGB_TEST 0xF2
 #define RGB_TRAN 0xF3
 
+#define LED_1 5
+#define LED_2 3
+
 byte state = RGB_IDLE;
 
 byte red = 0;
@@ -24,6 +27,9 @@ void setup()
   Wire.begin( RGB_ADDR );                // join i2c bus with address #4
   Wire.onReceive(receiveEvent);
   Wire.onRequest(requestEvent);
+  
+  pinMode(LED_1, OUTPUT);  
+  pinMode(LED_2, OUTPUT);  
   
   Serial.begin(9600);
 }
@@ -42,6 +48,8 @@ void loop()
 // this function is registered as an event, see setup()
 void receiveEvent(int num_bytes)
 {
+  digitalWrite(LED_1, HIGH);
+  
   Serial.print("data received, #bytes: ");
   Serial.print(num_bytes);
   Serial.println("");
@@ -59,6 +67,7 @@ void receiveEvent(int num_bytes)
       default: state = RGB_IDLE; break;  
     }
     
+    digitalWrite(LED_1, LOW);
     return;
   }
   
@@ -82,10 +91,14 @@ void receiveEvent(int num_bytes)
     
     writeDmxValues();
   }
+  
+  digitalWrite(LED_1, LOW);
 }
 
 void requestEvent()
 {
+  digitalWrite(LED_2, HIGH);
+  
   if( state == RGB_TRAN )
   {
     //return the current rgb values
@@ -99,6 +112,8 @@ void requestEvent()
     mode_test();
     Wire.write( state );
   }
+  
+  digitalWrite(LED_2, LOW);
 }
 
 void writeDmxValues()
