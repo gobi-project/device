@@ -9,4 +9,4 @@ A5	Button-Block	Button on KBI3 and KBI6, RX and TX LED, Battery-powered
 A6	Socket-Actuator	Relais on IO-Pin 43, RX and TX LED, Powersupply via mains adapter
 A7	Socket-Actuator	Relais on IO-Pin 43, RX and TX LED, Powersupply via mains adapter
 A8	Socket-Actuator	Relais on IO-Pin 43, RX and TX LED, Powersupply via mains adapter
-A9	RGB-Light	I2C, RX and TX LED, Powersupply via USB
+13	RGB-Light	I2C, RX and TX LED, Powersupply via USB
