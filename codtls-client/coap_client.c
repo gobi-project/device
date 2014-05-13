@@ -105,7 +105,7 @@ new_response( coap_context_t  *ctx, coap_queue_t *node, unsigned int code ) {
 }
 
 coap_pdu_t *
-coap_new_request(coap_context_t *ctx, method_t m, coap_list_t *options ) {
+coap_new_request(coap_context_t *ctx, method_t m, coap_list_t *options, unsigned int no_payload) {
   coap_pdu_t *pdu;
   coap_list_t *opt;
 
@@ -122,7 +122,7 @@ coap_new_request(coap_context_t *ctx, method_t m, coap_list_t *options ) {
 		    COAP_OPTION_DATA(*(coap_option *)opt->data));
   }
 
-  if (payload.length) {
+  if (payload.length && !no_payload) {
     if ((flags & FLAGS_BLOCK) == 0)
       coap_add_data(pdu, payload.length, payload.s);
     else
@@ -139,7 +139,7 @@ clear_obs(coap_context_t *ctx, const coap_address_t *remote) {
   coap_tid_t tid = COAP_INVALID_TID;
 
   /* create bare PDU w/o any option  */
-  pdu = coap_new_request(ctx, COAP_REQUEST_GET, NULL);
+  pdu = coap_new_request(ctx, COAP_REQUEST_GET, NULL, 1);
   
   if (pdu) {
     /* FIXME: add token */
@@ -332,9 +332,7 @@ void message_handler(struct coap_context_t *ctx, const coap_address_t *remote, c
                 debug("found the M bit, block size is %u, block nr. %u\n", COAP_OPT_BLOCK_SZX(block_opt), COAP_OPT_BLOCK_NUM(block_opt));
 
                 /* create pdu with request for next block */
-                if (method == COAP_REQUEST_GET) {
-                    pdu = coap_new_request(ctx, method, NULL); /* first, create bare PDU w/o any option  */
-                }
+                pdu = coap_new_request(ctx, method, NULL, 1); /* first, create bare PDU w/o any option  */
                 if ( pdu ) {
                     /* add URI components from optlist */
                     for (option = optlist; option; option = option->next ) {
@@ -1041,7 +1039,7 @@ int coap_request(uint8_t *ip, method_t my_method, char *my_res, char *target) {
   if (flags & FLAGS_BLOCK)
     set_blocksize();
 
-  if (! (pdu = coap_new_request(ctx, method, optlist)))
+  if (! (pdu = coap_new_request(ctx, method, optlist, 0)))
     return -1;
 
 #ifndef NDEBUG
