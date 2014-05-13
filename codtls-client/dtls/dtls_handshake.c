@@ -14,10 +14,10 @@
 #include "dtls_aes.h"
 #include "../coap_client.h"
 
-#define DEBUG 1
+#define DEBUG 0
 #define DEBUG_ECC 0
-#define DEBUG_PRF 1
-#define DEBUG_FIN 1
+#define DEBUG_PRF 0
+#define DEBUG_FIN 0
 
 #if DEBUG || DEBUG_ECC || DEBUG_PRF || DEBUG_FIN
     #include <stdio.h>
@@ -68,9 +68,9 @@ void dtls_handshake(uint8_t ip[16]) {
         return;
     }
     HelloVerifyRequest_t *verify = (HelloVerifyRequest_t *) (getContentData(buffer));
-    PRINTF("Step 1 done: Cookie erhalten: ");
+    printf("Step 1 done: Cookie erhalten: ");
     for (i = 0; i < verify->cookie_len; i++) printf("%02X", verify->cookie[i]);
-    PRINTF("\n");
+    printf("\n");
 
 // --------------------------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ void dtls_handshake(uint8_t ip[16]) {
     }
 
     ServerHello_t *serverHello = (ServerHello_t *) (getContentData(buffer));
-    PRINTF("Step 2 done: Session-Id: %.*s\n", serverHello->session_id.len, serverHello->session_id.session_id);
+    printf("Step 2 done: Session-Id: %.*s\n", serverHello->session_id.len, serverHello->session_id.session_id);
 
     createSession(ip, serverHello->session_id.session_id);
 
@@ -370,7 +370,7 @@ void dtls_handshake(uint8_t ip[16]) {
         printf("\n");
     #endif
 
-    PRINTF("Step 3 done.\n");
+    printf("Step 3 done. Handshake abgeschlossen.\n");
     increaseEpoch(ip);
 
     isHandshakeMessage = 0;
