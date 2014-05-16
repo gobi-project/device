@@ -1,7 +1,7 @@
 LIBMC1322X = ../../libmc1322x
 CONTIKI = ../../contiki
 
-CONTIKI_PROJECT = d13 d19 d28 da0 da1 da2 da3 da4 da5 da6 da7 da8
+CONTIKI_PROJECT = d13 # d19 d28 da0 da1 da2 da3 da4 da5 da6 da7 da8
 TARGET = econotag
 CLEAN = *.d d*_e_$(TARGET).bin d*_e_$(TARGET).txt d*_e_$(TARGET).pbm
 
@@ -10,7 +10,7 @@ all: $(CONTIKI_PROJECT) copy
 WITH_UIP6=1
 UIP_CONF_IPV6=1
 
-CFLAGS += -DWITH_DTLS=0
+# CFLAGS += -DWITH_DTLS=0
 CFLAGS += -DREST=coap_rest_implementation
 CFLAGS += -DUIP_CONF_TCP=0
 CFLAGS += -DSTACKMONITOR=1  # Initialiserung um den maximal benötigten Stack ermitteln zu können

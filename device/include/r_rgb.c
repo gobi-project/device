@@ -42,9 +42,12 @@ static int rgb_run_test()
   i2c_transmitinit(RGB_ADDR, 1, &mode);
   while(!i2c_transferred());
 
-  i2c_receiveinit(RGB_ADDR, 1, &mode);   //return RGB_IDLE if everything is correct
+  clock_wait( CLOCK_SECOND * 5 );   //wait until the test is done
 
-  return ( mode == RGB_IDLE );
+  i2c_receiveinit(RGB_ADDR, 1, &mode);   //return RGB_IDLE if everything is correct
+  while (!i2c_transferred());
+
+  return ( mode == RGB_TRAN );
 }
 
 static int rgb_transmit(int rgb)
@@ -59,12 +62,7 @@ static int rgb_transmit(int rgb)
   }
 
   rgb_int2bytes(data, rgb);
-  
-  //set arduino to Transmit-Mode
-  uint8_t mode = RGB_TRAN;
-  i2c_transmitinit(RGB_ADDR, 1, &mode);
-  while(!i2c_transferred());
-  
+
   //send rgb data
   i2c_transmitinit(RGB_ADDR, 3, data);
   while(!i2c_transferred());
@@ -74,11 +72,7 @@ static int rgb_transmit(int rgb)
 
 static int rgb_value(int type) {
   if( SENSORS_ACTIVE == type )
-  {  
-    uint8_t mode = RGB_TRAN;
-    i2c_transmitinit(RGB_ADDR, 1, &mode);
-    while(!i2c_transferred());
-
+  { 
     uint8_t data[3];
     i2c_receiveinit(RGB_ADDR, 3, data);
     while(!i2c_transferred());
@@ -107,6 +101,7 @@ static int rgb_configure(int type, int c) {
       if(!c)
       {
         i2c_enable();
+        clock_wait( CLOCK_SECOND * 10 ); //wait until the arduino is initialized
         return rgb_run_test();
       }
       else

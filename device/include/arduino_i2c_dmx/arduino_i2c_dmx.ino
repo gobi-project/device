@@ -1,3 +1,4 @@
+
 // I2C to DMX on Arduino Uno
 // Author: Fritz Jacob
 // GOBI Master Project, TZI, University of Bremen
@@ -18,6 +19,8 @@ byte state = RGB_IDLE;
 byte red = 0;
 byte green = 0;
 byte blue = 0;
+
+boolean test_done = false;
 
 void setup()
 {
@@ -40,6 +43,7 @@ void loop()
   {
     case RGB_IDLE: mode_idle(); break;
     case RGB_TRAN: mode_transmit(); break;
+    case RGB_TEST: mode_test(); break;
     default: mode_idle(); break;    
   }
 }
@@ -50,7 +54,7 @@ void receiveEvent(int num_bytes)
 {
   digitalWrite(LED_1, HIGH);
   
-  Serial.print("data received, #bytes: ");
+  Serial.print("  data received, #bytes: ");
   Serial.print(num_bytes);
   Serial.println("");
   
@@ -63,7 +67,7 @@ void receiveEvent(int num_bytes)
     {
       case RGB_IDLE: state = RGB_IDLE; break;
       case RGB_TEST: state = RGB_TEST; break;
-      case RGB_TRAN: state = RGB_TRAN; break;
+      case RGB_TRAN: state = RGB_TRAN; test_done = false; break;
       default: state = RGB_IDLE; break;  
     }
     
@@ -99,17 +103,21 @@ void requestEvent()
 {
   digitalWrite(LED_2, HIGH);
   
+  Serial.println("  request event");
+  
   if( state == RGB_TRAN )
   {
+    Serial.println("requested RGB values");
     //return the current rgb values
     Wire.write( red );
     Wire.write( green );
     Wire.write( blue );
   }
   
-  if( state == RGB_TEST )
+  if( state == RGB_TEST && test_done )
   {
-    mode_test();
+    Serial.println("requested end of test");
+    state = RGB_TRAN;
     Wire.write( state );
   }
   
@@ -129,23 +137,28 @@ void mode_idle()
   delay(1000);
 }
 
+
 void mode_test()
 {
-  Serial.println("Test-Mode");
-  Serial.print("red");
-  DmxSimple.write(2, 255);
-  delay(1000);
-  DmxSimple.write(2, 0);
-  Serial.print(" green");
-  DmxSimple.write(3, 255);
-  delay(1000);
-  DmxSimple.write(3, 0);
-  Serial.print(" blue\n");
-  DmxSimple.write(4, 255);
-  delay(1000);
-  DmxSimple.write(4, 0);
-  delay(1000);
-  state = RGB_IDLE;
+  if( !test_done )
+  {
+    Serial.println("Test-Mode");
+    Serial.print("red");
+    DmxSimple.write(2, 255);
+    delay(1000);
+    DmxSimple.write(2, 0);
+    Serial.print(" green");
+    DmxSimple.write(3, 255);
+    delay(1000);
+    DmxSimple.write(3, 0);
+    Serial.print(" blue\n");
+    DmxSimple.write(4, 255);
+    delay(1000);
+    DmxSimple.write(4, 0);
+    delay(1000);
+    
+    test_done = true;
+  }
 }
 
 void mode_transmit()
