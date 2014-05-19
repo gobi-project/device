@@ -5,7 +5,7 @@ CONTIKI_PROJECT = d19 d28 da0 da1 da2 da3 da4 da5 da6 da7 da8 da9
 TARGET = econotag
 CLEAN = *.d d*_e_$(TARGET).bin d*_e_$(TARGET).txt d*_e_$(TARGET).pbm
 
-all: $(CONTIKI_PROJECT) copy
+all: $(CONTIKI_PROJECT) blast
 
 WITH_UIP6=1
 UIP_CONF_IPV6=1
@@ -36,8 +36,8 @@ APPS += ecc
 # Wird hier durch include der .c-Files in device.c gelöst
 PROJECT_SOURCEFILES = 
 
-copy:
-#	cp $(CONTIKI_PROJECT)_$(TARGET).bin ../codtls-client/$(CONTIKI_PROJECT)_$(TARGET).bin
+blast:
+	../blaster/blaster $(shell echo $(CONTIKI_PROJECT).cfg | sed "s/ /.cfg /g")
 
 clear:
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 erase
@@ -46,9 +46,6 @@ upload:
 ifndef MAC
 	${info MAC not defined. Use 'make upload MAC=XX'}
 else
-	../blaster/blaster d$(MAC).cfg < d$(MAC)_$(TARGET).bin > \
-	d$(MAC)_e_$(TARGET).bin
-	
 	$(LIBMC1322X)/tools/mc1322x-load \
 	-f $(LIBMC1322X)/tests/flasher_$(TARGET).bin \
 	-s d$(MAC)_e_$(TARGET).bin \
