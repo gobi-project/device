@@ -8,15 +8,12 @@
 #ifndef RGB_ACTUATOR
 #define RGB_ACTUATOR
 #define RGB_ADDR 0x04
-#define RGB_IDLE 0xF1
-#define RGB_TEST 0xF2
-#define RGB_TRAN 0xF3
 #endif // RGB_ACTUATOR
 
 /* SENSOR ------------------------------------------------------------------ */
 static int current_rgb_value;
 
-static void rgb_int2bytes(char* output, int rgb)
+static void rgb_int2bytes(uint8_t* output, int rgb)
 {
   output[2] = rgb & 0xFF;   //get blue value
   rgb = rgb >> 8;
@@ -25,29 +22,15 @@ static void rgb_int2bytes(char* output, int rgb)
   output[0] = rgb & 0xFF;   //get red value
 }
 
-static int rgb_bytes2int(char *input)
+static unsigned int rgb_bytes2int(uint8_t *input)
 {
-  int result = 0;
-  result = input[2];
+  unsigned int result = 0;
+  result |= input[0];   //red comes first
   result = result << 8;
-  result = result & input[1];
+  result |= input[1];   //gren
   result = result << 8;
-  result = result & input[0];
+  result |= input[2];   //blue
   return result;
-}
-
-static int rgb_run_test()
-{
-  uint8_t mode = RGB_TEST;
-  i2c_transmitinit(RGB_ADDR, 1, &mode);
-  while(!i2c_transferred());
-
-  clock_wait( CLOCK_SECOND * 5 );   //wait until the test is done
-
-  i2c_receiveinit(RGB_ADDR, 1, &mode);   //return RGB_IDLE if everything is correct
-  while (!i2c_transferred());
-
-  return ( mode == RGB_TRAN );
 }
 
 static int rgb_transmit(int rgb)
@@ -85,13 +68,6 @@ static int rgb_value(int type) {
 }
 
 static int rgb_status(int type) {
-  switch (type) {
-    case SENSORS_ACTIVE:
-    case SENSORS_READY:
-      return 1; // fix?
-      break;
-  }
-
   return 0;
 }
 
@@ -101,8 +77,7 @@ static int rgb_configure(int type, int c) {
       if(!c)
       {
         i2c_enable();
-        clock_wait( CLOCK_SECOND * 10 ); //wait until the arduino is initialized
-        return rgb_run_test();
+        return 1;
       }
       else
       {
@@ -130,15 +105,12 @@ void rgb_resource_handler(void* request, void* response, uint8_t *buffer, uint16
     len = REST.get_request_payload(request, &payload);
     result = atoi(payload);
     rgb.configure(SENSORS_ACTIVE, result);
+    clock_wait( CLOCK_SECOND >> 2 );
   }
   
-  uint8_t rgb_values[3];
-  rgb_int2bytes(rgb_values, rgb_value(SENSORS_ACTIVE));
-
-  // {"bn":"/rgb","e":[{"n":"red","v":%d,"u":"%"},{"n":"green","v":%d,"u":"%"},{"n":"blue","v":%d,"u":"%"}]} 
-  uint8_t source_string[LEN_SENML_RGB];
+  uint8_t source_string[LEN_SENML_RGB];  // {"bn":"/rgb","bu":"ARGB","e":[{"v":"%u"}]}
   nvm_getVar(source_string, RES_SENML_RGB, LEN_SENML_RGB);
-  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, rgb_values[2], rgb_values[1], rgb_values[0]);
+  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, rgb.value(SENSORS_ACTIVE) );
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
   REST.set_response_payload(response, buffer, length);

@@ -6,15 +6,10 @@
 #include <Wire.h>
 #include <DmxSimple.h>
 
-#define RGB_ADDR 0x04
-#define RGB_IDLE 0xF1
-#define RGB_TEST 0xF2
-#define RGB_TRAN 0xF3
+#define RGB_ADDR 4
 
 #define LED_1 5
 #define LED_2 3
-
-byte state = RGB_IDLE;
 
 byte red = 0;
 byte green = 0;
@@ -39,13 +34,9 @@ void setup()
 
 void loop()
 {
-  switch( state )
-  {
-    case RGB_IDLE: mode_idle(); break;
-    case RGB_TRAN: mode_transmit(); break;
-    case RGB_TEST: mode_test(); break;
-    default: mode_idle(); break;    
-  }
+  delay(1000);
+  run_test();  //runs one time!
+  Serial.println("Idle");
 }
 
 // function that executes whenever data is received from master
@@ -54,29 +45,11 @@ void receiveEvent(int num_bytes)
 {
   digitalWrite(LED_1, HIGH);
   
-  Serial.print("  data received, #bytes: ");
+  Serial.print("data received, #bytes: ");
   Serial.print(num_bytes);
   Serial.println("");
   
-  //if we receive only one byte we have state change
-  if( num_bytes == 1 )
-  {
-    byte new_state = Wire.read();
-    
-    switch( new_state )
-    {
-      case RGB_IDLE: state = RGB_IDLE; break;
-      case RGB_TEST: state = RGB_TEST; break;
-      case RGB_TRAN: state = RGB_TRAN; test_done = false; break;
-      default: state = RGB_IDLE; break;  
-    }
-    
-    digitalWrite(LED_1, LOW);
-    return;
-  }
-  
-  //if we receive more than 1 byte and we are in TRAN(SMIT) mode, we set new values for rgb
-  if( num_bytes == 3 && state == RGB_TRAN )
+  if( num_bytes == 3 )
   {
     if( Wire.available() )
     {
@@ -102,24 +75,19 @@ void receiveEvent(int num_bytes)
 void requestEvent()
 {
   digitalWrite(LED_2, HIGH);
+
+  Serial.println("requested RGB values");
+  Serial.print( red );
+  Serial.print( green );
+  Serial.print( blue );
+  Serial.print( "\n" );
+  //return the current rgb values
+  byte rgb[3];
+  rgb[0] = red;
+  rgb[1] = green;
+  rgb[2] = blue;
   
-  Serial.println("  request event");
-  
-  if( state == RGB_TRAN )
-  {
-    Serial.println("requested RGB values");
-    //return the current rgb values
-    Wire.write( red );
-    Wire.write( green );
-    Wire.write( blue );
-  }
-  
-  if( state == RGB_TEST && test_done )
-  {
-    Serial.println("requested end of test");
-    state = RGB_TRAN;
-    Wire.write( state );
-  }
+  Wire.write( rgb, 3 );
   
   digitalWrite(LED_2, LOW);
 }
@@ -131,46 +99,32 @@ void writeDmxValues()
   DmxSimple.write(4, blue);
 }
 
-void mode_idle()
+void run_test()
 {
-  Serial.println("Idle-Mode");
-  delay(1000);
-}
-
-
-void mode_test()
-{
+  digitalWrite(LED_1, HIGH);
+  digitalWrite(LED_2, HIGH);
+  
   if( !test_done )
   {
-    Serial.println("Test-Mode");
+    Serial.println("Test");
     Serial.print("red");
     DmxSimple.write(2, 255);
-    delay(1000);
+    delay(500);
     DmxSimple.write(2, 0);
     Serial.print(" green");
     DmxSimple.write(3, 255);
-    delay(1000);
+    delay(500);
     DmxSimple.write(3, 0);
     Serial.print(" blue\n");
     DmxSimple.write(4, 255);
-    delay(1000);
+    delay(500);
     DmxSimple.write(4, 0);
-    delay(1000);
+    delay(500);
     
     test_done = true;
   }
-}
-
-void mode_transmit()
-{
-  Serial.println("Transmit-Mode");
-  Serial.print("red: ");
-  Serial.print(red);
-  Serial.print(", green: ");
-  Serial.print(green);
-  Serial.print(", blue: ");
-  Serial.print(blue);
-  Serial.println("");
-  delay(1000);
+  
+  digitalWrite(LED_1, LOW);
+  digitalWrite(LED_2, LOW);
 }
 
