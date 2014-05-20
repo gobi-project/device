@@ -52,6 +52,8 @@
 #define LEN_SENML_VAL    44
 #define RES_SENML_BUTTON 0x1D680
 #define LEN_SENML_BUTTON 40
+#define RES_SENML_RGB    0x1D720
+#define LEN_SENML_RGB    43
 
 //Read Only Vars
 #define RES_CONFIG       0x1E000
@@ -175,6 +177,8 @@ int main(int nArgs, char **argv) {
         memcpy(output + RES_SENML_VAL, buffer, LEN_SENML_VAL);
         buffer = "{\"bn\":\"/btn\",\"bu\":\"B\",\"e\":[{\"v\":\"%d\"}]}\x00";
         memcpy(output + RES_SENML_BUTTON, buffer, LEN_SENML_BUTTON);
+        buffer = "{\"bn\":\"/rgb\",\"bu\":\"ARGB\",\"e\":[{\"v\":\"%u\"}]}\x00";
+        memcpy(output + RES_SENML_RGB, buffer, LEN_SENML_RGB);
 
         // Contiki-Config setzen ------------------------------------------------------
         output[RES_CONFIG + 0] = 0x22;
