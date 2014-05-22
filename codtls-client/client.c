@@ -125,6 +125,17 @@ int main(int argc, char *argv[]) {
                     unknown = 0;
                 }
                 break;
+            case 8:
+                if (!memcmp("device", cbuffer, 6)) {
+                    uint8_t *ip = get_ip(liste, atoi(cbuffer + 7));
+                    memset(buffer, 0, 512);
+                    node_getDevice(ip, buffer);
+                    int i;
+                    for (i = 0; i < 512; i++) if (buffer[i] == ',') buffer[i] = '\n';
+                    printf("Device:\n%s\n", buffer);
+                    unknown = 0;
+                }
+                break;
             case 9:
                 if (!memcmp("settime", cbuffer, 7)) {
                     uint8_t *ip = get_ip(liste, atoi(cbuffer + 8));
@@ -142,7 +153,7 @@ int main(int argc, char *argv[]) {
                 }
                 break;
         }
-        if (unknown) printf("Unbekannter Befehl. Möglichkeiten:\n   ls\n   handshake <nr>\n   name <nr>\n   ecc <nr>\n   uuid <nr>\n   time <nr>\n   model <nr>\n   flash <nr>\n   exit\n");
+        if (unknown) printf("Unbekannter Befehl. Möglichkeiten:\n   ls\n   handshake <nr>\n   name <nr>\n   psk <nr>\n   uuid <nr>\n   time <nr>\n   model <nr>\n   flash <nr>\n   core <nr>\n   device <nr>\n   exit\n");
     }    
 
     clear_ip(&liste);

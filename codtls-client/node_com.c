@@ -27,6 +27,10 @@ void node_getCore(uint8_t *ip, char *target) {
     coap_request(ip, COAP_REQUEST_GET, ".well-known/core", target);
 }
 
+void node_getDevice(uint8_t *ip, char *target) {
+    coap_request(ip, COAP_REQUEST_GET, "d", target);
+}
+
 void node_getName(uint8_t *ip, char *target) {
     coap_request(ip, COAP_REQUEST_GET, "d/name", target);
 }

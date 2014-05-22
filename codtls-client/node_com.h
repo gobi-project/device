@@ -6,6 +6,8 @@
 
 void node_getCore(uint8_t *ip, char *target);
 
+void node_getDevice(uint8_t *ip, char *target);
+
 void node_getName(uint8_t *ip, char *target);
 
 void node_getModel(uint8_t *ip, char *target);
