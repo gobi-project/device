@@ -99,7 +99,7 @@ void rgb_resource_handler(void* request, void* response, uint8_t *buffer, uint16
   int length = 0;
   int result = 0;
 
-  if (REST.get_method_type(request) != METHOD_GET) {
+  if (REST.get_method_type(request) != METHOD_GET && *offset == 0) {
     const uint8_t *payload = 0;
     int len = 0;
     len = REST.get_request_payload(request, &payload);
