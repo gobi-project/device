@@ -36,8 +36,11 @@ APPS += ecc
 # Wird hier durch include der .c-Files in device.c gelöst
 PROJECT_SOURCEFILES = 
 
-blast:
+blast: ../blaster/blaster
 	../blaster/blaster $(shell echo $(CONTIKI_PROJECT).cfg | sed "s/ /.cfg /g")
+
+../blaster/blaster:	../blaster/main.c
+	(cd ../blaster && $(MAKE))
 
 clear:
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 erase
