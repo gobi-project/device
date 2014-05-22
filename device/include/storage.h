@@ -31,6 +31,10 @@
 #define LEN_SENML_VAL    44
 #define RES_SENML_BUTTON 0x1D680
 #define LEN_SENML_BUTTON 40
+#define RES_SENML_RGB	 0x1D720
+#define LEN_SENML_RGB	 43
+#define RES_SENML_BOUT	 0x1D760
+#define LEN_SENML_BOUT	 40
 
 //Read Only Vars
 #define RES_CONFIG       0x1E000
@@ -48,10 +52,10 @@
 #define RES_ECC_ORDER    0x1E0C0
 #define LEN_ECC_ORDER    0x20
 #define RES_NAME         0x1E0E0
-#define LEN_NAME         0x20
-#define RES_MODEL        0x1E100
-#define LEN_MODEL        0x20
-#define RES_FLASHTIME    0x1E120
+#define LEN_NAME         0x40
+#define RES_MODEL        0x1E120
+#define LEN_MODEL        0x40
+#define RES_FLASHTIME    0x1E160
 #define LEN_FLASHTIME    0x04
 
 #endif /* STORAGE_H_ */
