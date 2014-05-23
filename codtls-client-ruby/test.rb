@@ -23,22 +23,22 @@ suppress(Exception) do
 	  case state
 		when 0
 		  value = random.rand(0...16777215)
-		  c.post('aaaa::60b1:0013', 5684, '/rgb', value.to_s)
+		  c.post('aaaa::60b1:0013', 5684, '/rgb', value.to_s) rescue 'error'
 		  puts "rgb: "+value.to_s
 		when 1
-		  c.post('aaaa::60b1:0013', 5684, '/rgb', '0')
+		  c.post('aaaa::60b1:0013', 5684, '/rgb', '0') rescue 'error'
 		  puts "rgb: 0"
 		when 2
-		  c.post('aaaa::60b1:00a6', 5684, '/swt', '0')
+		  c.post('aaaa::60b1:00a6', 5684, '/swt', '0') rescue 'error'
 		  puts "socket1 off"
 		when 3
-		  c.post('aaaa::60b1:00a6', 5684, '/swt', '1')
+		  c.post('aaaa::60b1:00a6', 5684, '/swt', '1') rescue 'error'
 		  puts "socket1 on"
 		when 4
-		  c.post('aaaa::60b1:00a7', 5684, '/swt', '0')
+		  c.post('aaaa::60b1:00a7', 5684, '/swt', '0') rescue 'error'
 		  puts "socket2 off"
 		when 5
-		  c.post('aaaa::60b1:00a7', 5684, '/swt', '1')
+		  c.post('aaaa::60b1:00a7', 5684, '/swt', '1') rescue 'error'
 		  puts "socket2 on"
 	  end
 	end
