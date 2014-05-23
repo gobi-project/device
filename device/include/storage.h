@@ -33,6 +33,8 @@
 #define LEN_SENML_BUTTON 40
 #define RES_SENML_RGB	 0x1D720
 #define LEN_SENML_RGB	 43
+#define RES_SENML_BOUT	 0x1D760
+#define LEN_SENML_BOUT	 40
 
 //Read Only Vars
 #define RES_CONFIG       0x1E000
