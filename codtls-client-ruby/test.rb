@@ -16,7 +16,7 @@ random = Random.new
 puts "start random test with socket1, socket2 and rgb light..."
 
 suppress(Exception) do
-	while true do  
+	while false do  
 	  sleep(5)	
 
 	  state = random.rand(0..5)
@@ -42,4 +42,12 @@ suppress(Exception) do
 		  puts "socket2 on"
 	  end
 	end
+
+    while true do
+      value = random.rand(0...16777215)
+      c.post('aaaa::60b1:0013', 5684, '/rgb', value.to_s) rescue 'error'
+	  puts "rgb: "+value.to_s
+	  sleep(1)
+    end	
+
 end
