@@ -1,7 +1,7 @@
 #include "include/main_1.c"
 
 // Nur benötigte device spezifische Dateien inkludieren
-#include "include/r_b_out.c"       // Temperatur-Sensor (i2c)
+#include "include/r_b_out.c" 
 
 // Nur benötigte/eingebundene Sensoren registrieren
 SENSORS(&button_sensor, &b_out);
