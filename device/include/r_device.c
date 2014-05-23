@@ -59,6 +59,8 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
     //*  DEVICE IDENTIFIER                                                    *
     //*************************************************************************
     if (uri_path[2] == 'u') {
+        leds_on(LEDS_GREEN);
+
         nvm_getVar(buffer, RES_UUID, LEN_UUID);
         REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);
         REST.set_response_payload(response, buffer, LEN_UUID);
