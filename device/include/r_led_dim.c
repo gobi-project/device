@@ -1,5 +1,5 @@
-#include "storage.h"
-#include "flash-store.h"
+#include "flash.h"
+#include "../../../contiki/tools/blaster/blaster.h"
 
 #include <lib/sensors.h>
 #include <pwm.h>

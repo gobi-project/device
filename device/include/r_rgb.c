@@ -1,5 +1,5 @@
-#include "storage.h"
-#include "flash-store.h"
+#include "flash.h"
+#include "../../../contiki/tools/blaster/blaster.h"
 
 #include "contiki.h"
 #include "lib/sensors.h"
@@ -109,7 +109,7 @@ void rgb_resource_handler(void* request, void* response, uint8_t *buffer, uint16
   }
   
   uint8_t source_string[LEN_SENML_RGB];  // {"bn":"/rgb","bu":"ARGB","e":[{"v":"%u"}]}
-  nvm_getVar(source_string, RES_SENML_RGB, LEN_SENML_RGB);
+  flash_getVar(source_string, RES_SENML_RGB, LEN_SENML_RGB);
   length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, rgb.value(SENSORS_ACTIVE) );
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);

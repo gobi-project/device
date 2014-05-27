@@ -10,7 +10,7 @@ all: $(CONTIKI_PROJECT) blast
 WITH_UIP6=1
 UIP_CONF_IPV6=1
 
-CFLAGS += -DWITH_DTLS=0
+CFLAGS += -DWITH_DTLS=1
 CFLAGS += -DREST=coap_rest_implementation
 CFLAGS += -DUIP_CONF_TCP=0
 CFLAGS += -DSTACKMONITOR=1  # Initialiserung um den maximal benötigten Stack ermitteln zu können
@@ -18,6 +18,8 @@ CFLAGS += -DHEAPMONITOR=1   # Initialiserung um den maximal benötigten Heap erm
 CFLAGS += -DRADIODEBUGLED=1 # Aktiviert die rote LED bei Datentransfer über 802.15.4
 CFLAGS += -DOWN_SENSORS_DEFINITION
 CFLAGS += -DREST_MAX_CHUNK_SIZE=48
+CFLAGS += -DFLASH_CONF_B1=658
+CFLAGS += -DFLASH_CONF_B2=801
 
 # CFLAGS += -Wcast-align -Wall -Wstrict-prototypes -Wextra
 # http://www.gnu.org/software/gsl/manual/html_node/GCC-warning-options-for-numerical-programs.html
@@ -25,22 +27,22 @@ CFLAGS += -DREST_MAX_CHUNK_SIZE=48
 LDFLAGS += "-Wl,-gc-sections"
 
 # zusätzliche Bibliotheken aus $(CONTIKI)/apps
-APPS += er-dtls
 APPS += rest-engine
 APPS += er-coap
-APPS += flash-store
 APPS += aes
 APPS += ecc
+APPS += flash
+APPS += er-dtls
 
 # der eigentliche Code (nicht benoetigt, wenn nur eine Datei...)
 # Wird hier durch include der .c-Files in device.c gelöst
 PROJECT_SOURCEFILES = 
 
-blast: ../blaster/blaster
-	../blaster/blaster $(shell echo $(CONTIKI_PROJECT).cfg | sed "s/ /.cfg /g")
+blast: $(CONTIKI)/tools/blaster/blaster
+	$(CONTIKI)/tools/blaster/blaster $(shell echo $(CONTIKI_PROJECT).cfg | sed "s/ /.cfg /g")
 
-../blaster/blaster:	../blaster/main.c
-	(cd ../blaster && $(MAKE))
+$(CONTIKI)/tools/blaster/blaster:	$(CONTIKI)/tools/blaster/blaster.c
+	(cd $(CONTIKI)/tools/blaster && $(MAKE))
 
 clear:
 	sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 erase

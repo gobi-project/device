@@ -1,5 +1,5 @@
-#include "storage.h"
-#include "flash-store.h"
+#include "flash.h"
+#include "../../../contiki/tools/blaster/blaster.h"
 
 #include "contiki.h"
 #include "lib/sensors.h"
@@ -252,7 +252,7 @@ void lux_resource_handler(void* request, void* response, uint8_t *buffer, uint16
   int length = 0;
 
   uint8_t source_string[LEN_SENML_LUX]; // {"bn":"/lux","bu":"%%lx","e":[{"v":"%d"}]}
-  nvm_getVar(source_string, RES_SENML_LUX, LEN_SENML_LUX);
+  flash_getVar(source_string, RES_SENML_LUX, LEN_SENML_LUX);
   length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, lux.value(SENSORS_ACTIVE) );
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);

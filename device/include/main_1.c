@@ -1,9 +1,9 @@
-#include "storage.h"
 #include "leds.h"
 #include "button-sensor.h"
 #include "clock.h"
 #include "er-coap-engine.h"
-#include "flash-store.h"
+#include "flash.h"
+#include "../../../contiki/tools/blaster/blaster.h"
 
 #include "contiki-net.h"
 

@@ -6,7 +6,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
   PROCESS_BEGIN();
 
   uint32_t time;
-  nvm_getVar((void *) &time, RES_FLASHTIME, LEN_FLASHTIME);
+  flash_getVar((void *) &time, RES_FLASHTIME, LEN_FLASHTIME);
   clock_set_seconds(time);
 
   leds_arch_init();
@@ -16,7 +16,7 @@ PROCESS_THREAD(server_firmware, ev, data) {
       GPIO->FUNC_SEL.GPIO_44 = 2;
       GPIO->PAD_DIR.GPIO_44 = 1;
 #endif
-    nvm_init();
+    flash_init();
     rest_init_engine();
     // Standard Ressourcen aktivieren
     rest_activate_resource(&res_device, "d");

@@ -6,8 +6,8 @@
  * Original Author  : Hedde Bosman (heddebosman@incas3.eu)
  */
 
-#include "storage.h"
-#include "flash-store.h"
+#include "flash.h"
+#include "../../../contiki/tools/blaster/blaster.h"
 
 #include "contiki.h"
 #include "lib/sensors.h"
@@ -109,7 +109,7 @@ void tmp_resource_handler(void* request, void* response, uint8_t *buffer, uint16
   int length = 0;
 
   uint8_t source_string[LEN_SENML_TMP]; // {"bn":"/tmp","bu":"%%degC","e":[{"v":"%d.%d"}]}
-  nvm_getVar(source_string, RES_SENML_TMP, LEN_SENML_TMP);
+  flash_getVar(source_string, RES_SENML_TMP, LEN_SENML_TMP);
   length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, tmp.value(SENSORS_ACTIVE) / 100, tmp.value(SENSORS_ACTIVE) % 100);
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);

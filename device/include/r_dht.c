@@ -1,5 +1,5 @@
-#include "storage.h"
-#include "flash-store.h"
+#include "flash.h"
+#include "../../../contiki/tools/blaster/blaster.h"
 
 #include <lib/sensors.h>
 #include <gpio-util.h>
@@ -143,7 +143,7 @@ void dht_hum_resource_handler(void* request, void* response, uint8_t *buffer, ui
   int length = 0;
   
   uint8_t source_string[LEN_SENML_HUM]; // {"bn":"/hum","bu":"%%RH","e":[{"v":"%d.%d"}]}
-  nvm_getVar(source_string, RES_SENML_HUM, LEN_SENML_HUM);
+  flash_getVar(source_string, RES_SENML_HUM, LEN_SENML_HUM);
   length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, hum / 100, hum % 100);
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
@@ -158,7 +158,7 @@ void dht_tmp_resource_handler(void* request, void* response, uint8_t *buffer, ui
   int length = 0;
 
   uint8_t source_string[LEN_SENML_TMP_F]; // {"bn":"/tmp","bu":"%%degF","e":[{"v":"%d.%d"}]}
-  nvm_getVar(source_string, RES_SENML_TMP_F, LEN_SENML_TMP_F);
+  flash_getVar(source_string, RES_SENML_TMP_F, LEN_SENML_TMP_F);
   length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, tmp / 100, tmp % 100);
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);

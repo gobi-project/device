@@ -1,6 +1,0 @@
-./blaster <config.cfg> < EINGABEDATEI > AUSGABEDATEI
-
-Die EINGABEDATEI ist die kompilierte .bin Firmware Datei.
-AUSGABEDATEI ist die knapp 124Kb grosse aufgeblasene Firmware.
-
-!!! ACHTUNG !!! Zum Flashen ist der Parameter -l erforderlich.

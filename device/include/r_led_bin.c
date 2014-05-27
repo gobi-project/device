@@ -1,5 +1,5 @@
-#include "storage.h"
-#include "flash-store.h"
+#include "flash.h"
+#include "../../../contiki/tools/blaster/blaster.h"
 
 #include <lib/sensors.h>
 #include <gpio-util.h>
@@ -49,7 +49,7 @@ void led_bin_resource_handler(void* request, void* response, uint8_t *buffer, ui
   }
 
   uint8_t source_string[LEN_SENML_LEDB]; // {"bn":"/led_b","bu":"B","e":[{"v":"%d"}]}
-  nvm_getVar(source_string, RES_SENML_LEDB, LEN_SENML_LEDB);
+  flash_getVar(source_string, RES_SENML_LEDB, LEN_SENML_LEDB);
   length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, led_bin.value(SENSORS_ACTIVE));
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
