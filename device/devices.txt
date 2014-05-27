@@ -1,12 +1,12 @@
+13	RGB-Light	I2C, RX and TX LED, Powersupply via USB
 19	DTLS-Test-Device. Nur die beiden Onboard-Buttons sind aktiv
+25	LED-Block	LED on IO-Pin 43, RX and TX LED, Battery-powered
 28	Temperature-Sensor	TMP102, I2C, RX and TX LED, Powersupply via USB
 29	Temperature-Sensor	TMP102, I2C, RX and TX LED, Powersupply via USB
 30	LUX-Sensor	I2C, RX and TX LED, Powersupply via USB
-31	DHT-Sensor	digital Humidity and Temperature Sensor, IO-Pin 43, RX and TX LED, Powersupply via USB
-25	LED-Block	LED on IO-Pin 43, RX and TX LED, Battery-powered
-A4	Button-Block	Button on KBI3 and KBI6, RX and TX LED, Battery-powered
-A5	Button-Block	Button on KBI3 and KBI6, RX and TX LED, Battery-powered
+31	DHT-Sensor	Humidity and Temperature Sensor, IO 43, RX and TX LED, Powersupply via USB
+B1	Button-Block	Button on KBI3 and KBI6, RX and TX LED, Battery-powered
+B2	Button-Block	Button on KBI3 and KBI6, RX and TX LED, Battery-powered
 A6	Socket-Actuator	Relais on IO-Pin 43, RX and TX LED, Powersupply via mains adapter
 A7	Socket-Actuator	Relais on IO-Pin 43, RX and TX LED, Powersupply via mains adapter
 A8	Socket-Actuator	Relais on IO-Pin 43, RX and TX LED, Powersupply via mains adapter
-13	RGB-Light	I2C, RX and TX LED, Powersupply via USB
