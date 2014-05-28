@@ -1,9 +1,10 @@
 LIBMC1322X = ../../libmc1322x
 CONTIKI = ../../contiki
 
-CONTIKI_PROJECT = d13 d19 d25 d28 d29 d30 d31 db1 db2 da6 da7 da8
+CONTIKI_PROJECT = d_button d_socket d_temperature d_led d_rgb d_lux d_dht d_test
+DEVICES = db1 db2 da6 da7 da8 d28 d29 d25 d13 d30 d31 d19
 TARGET = econotag
-CLEAN = *.d d*_e_$(TARGET).bin d*_e_$(TARGET).txt d*_e_$(TARGET).pbm
+CLEAN = *.d d*_$(TARGET).bin d*_$(TARGET).txt d*_$(TARGET).pbm
 
 all: $(CONTIKI_PROJECT) blast
 
@@ -40,7 +41,7 @@ APPS += er-dtls
 PROJECT_SOURCEFILES = 
 
 blast: $(CONTIKI)/tools/blaster/blaster
-	$(CONTIKI)/tools/blaster/blaster $(shell echo $(CONTIKI_PROJECT).cfg | sed "s/ /.cfg /g")
+	$(CONTIKI)/tools/blaster/blaster $(shell echo $(DEVICES).cfg | sed "s/ /.cfg /g")
 
 $(CONTIKI)/tools/blaster/blaster:	$(CONTIKI)/tools/blaster/blaster.c
 	(cd $(CONTIKI)/tools/blaster && $(MAKE))
@@ -54,7 +55,7 @@ ifndef MAC
 else
 	$(LIBMC1322X)/tools/mc1322x-load \
 	-f $(LIBMC1322X)/tests/flasher_$(TARGET).bin \
-	-s d$(MAC)_e_$(TARGET).bin \
+	-s d$(MAC)_$(TARGET).bin \
 	-c 'sudo $(LIBMC1322X)/tools/ftditools/bbmc -l $(TARGET) -i 0 reset' \
 	-t /dev/ttyUSB1 -l -e \
 	
