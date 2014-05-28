@@ -66,6 +66,6 @@ listen:
 	while true; do cat /dev/ttyUSB1; done
 
 list:
-	cat devices.txt
+	../cfg-parser/cfg_parser .
 
 include $(CONTIKI)/Makefile.include
