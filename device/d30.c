@@ -14,3 +14,5 @@ SENSORS(&button_sensor, &lux);
 #include "include/main_3.c"
 
 #include "include/main_4.c"
+
+AUTOSTART_PROCESSES(&server_firmware);

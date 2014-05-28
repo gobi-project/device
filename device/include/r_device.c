@@ -61,6 +61,7 @@ void device_handler(void* request, void* response, uint8_t *buffer, uint16_t pre
     //*************************************************************************
     if (uri_path[2] == 'u') {
         leds_on(LEDS_GREEN);
+        send_hello = 0;
 
         flash_getVar(buffer, RES_UUID, LEN_UUID);
         REST.set_header_content_type(response, APPLICATION_OCTET_STREAM);

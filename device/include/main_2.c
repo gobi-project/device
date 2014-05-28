@@ -1,7 +1,4 @@
-// Start Process
 PROCESS(server_firmware, "Server Firmware");
-AUTOSTART_PROCESSES(&server_firmware);
-
 PROCESS_THREAD(server_firmware, ev, data) {
   PROCESS_BEGIN();
 

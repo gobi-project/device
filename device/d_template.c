@@ -26,6 +26,22 @@ SENSORS(&button_sensor, &button_sensor2, &externbutton_sensor, &led_bin, &led_di
 
 #include "include/main_3.c"
 
+  // Was nun folgt wird alle 30 Sekunden wiederholt ->
+  printf("Hallo Welt!\n");
+
+#include "include/main_4.c"
+
+PROCESS(event_listener, "Event Listener");
+PROCESS_THREAD(event_listener, ev, data) {
+  PROCESS_BEGIN();
+
+  while(1) {
+    PROCESS_WAIT_EVENT();
+
+    if (ev == sensors_event) {
+      if (data == &button_sensor) {
+        printf("board button 1\n");
+      }
       if (data == &button_sensor2) {
         printf("board button 2\n");
       }
@@ -33,5 +49,11 @@ SENSORS(&button_sensor, &button_sensor2, &externbutton_sensor, &led_bin, &led_di
         res_btn.trigger();
         printf("extern button\n");
       }
+    }
+  }
+  PROCESS_END();
+}
 
-#include "include/main_4.c"
+// server_firmware muss immer gestartet werden. Weitere Prozesse, wie der
+// event_listener in diesem Beispiel, müssen zusätzlich eingefügt werden.
+AUTOSTART_PROCESSES(&server_firmware, &event_listener);

@@ -7,7 +7,7 @@
 
 #include "contiki-net.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 #if DEBUG
   #include <stdio.h>
@@ -20,6 +20,8 @@
   #define PRINTF(...)
   #define PRINT6ADDR(addr)
 #endif
+
+static uint32_t send_hello = 1;
 
 // Standard Ressourcen einfügen
 #include "r_device.c"

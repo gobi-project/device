@@ -15,3 +15,5 @@ SENSORS(&button_sensor, &dht);
 #include "include/main_3.c"
 
 #include "include/main_4.c"
+
+AUTOSTART_PROCESSES(&server_firmware);

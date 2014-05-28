@@ -11,10 +11,11 @@ WITH_UIP6=1
 UIP_CONF_IPV6=1
 
 CFLAGS += -DWITH_DTLS=1
+CFLAGS += -DHELLO_REQUEST=1
 CFLAGS += -DREST=coap_rest_implementation
 CFLAGS += -DUIP_CONF_TCP=0
-CFLAGS += -DSTACKMONITOR=1  # Initialiserung um den maximal benötigten Stack ermitteln zu können
-CFLAGS += -DHEAPMONITOR=1   # Initialiserung um den maximal benötigten Heap ermitteln zu können
+CFLAGS += -DSTACKMONITOR=0  # Initialiserung um den maximal benötigten Stack ermitteln zu können
+CFLAGS += -DHEAPMONITOR=0   # Initialiserung um den maximal benötigten Heap ermitteln zu können
 CFLAGS += -DRADIODEBUGLED=1 # Aktiviert die rote LED bei Datentransfer über 802.15.4
 CFLAGS += -DOWN_SENSORS_DEFINITION
 CFLAGS += -DREST_MAX_CHUNK_SIZE=48
@@ -34,7 +35,7 @@ APPS += ecc
 APPS += flash
 APPS += er-dtls
 
-# der eigentliche Code (nicht benoetigt, wenn nur eine Datei...)
+# der eigentliche Code (nicht benötigt, wenn nur eine Datei...)
 # Wird hier durch include der .c-Files in device.c gelöst
 PROJECT_SOURCEFILES = 
 
