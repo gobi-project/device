@@ -1,5 +1,5 @@
-LIBMC1322X = ../../libmc1322x
-CONTIKI = ../../contiki
+LIBMC1322X = ../libmc1322x
+CONTIKI = ../contiki
 
 CONTIKI_PROJECT = d_button d_socket d_temperature d_led d_rgb d_lux d_dht d_test
 DEVICES = db1 db2 da6 da7 da8 d28 d29 d25 d13 d30 d31 d19
