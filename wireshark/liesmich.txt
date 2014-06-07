@@ -1,9 +1,0 @@
-Erstellt für Wireshark 1.10.1
-
-Um CoAPs in Wireshark zu untersuchen muss die Datei packet-coaps.c
-in das Verzeichnis wireshark/epan/dissectors kopiert werden.
-
-Außerdem ist ein Eintrag des Dateinamens in der
-wireshark/epan/dissectors/Makefile.common notwendig.
-
-Danach muss Wireshark erneut kompiliert und installiert werden.
