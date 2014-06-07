@@ -65,7 +65,10 @@ endif
 listen:
 	while true; do cat /dev/ttyUSB1; done
 
-list:
-	../cfg-parser/cfg_parser .
+list: cfg-parser/cfg_parser
+	cfg-parser/cfg_parser .
+
+cfg-parser/cfg_parser: cfg-parser/cfg_parser.c
+	make -C cfg-parser
 
 include $(CONTIKI)/Makefile.include
