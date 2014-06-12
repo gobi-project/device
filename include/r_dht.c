@@ -24,13 +24,13 @@ static unsigned long dht_last_call = 0;
 static void
 dht_read()
 {
-  if( dht_last_call == clock_seconds() )
+  if( dht_last_call + 5 < clock_seconds() )
   {
-    return;
+    dht_last_call = clock_seconds();
   }
   else
   {
-    dht_last_call = clock_seconds();
+    return;
   }
 
   uint8_t data[5];
@@ -105,7 +105,7 @@ static int dht_value(int type)
         return dht_hum;
       break;
     case DHT_TEMPERATURE:
-        return dht_tmp;
+        return ((dht_tmp - 3200) * 5 ) / 9;
       break;
     default:
         return 0;
