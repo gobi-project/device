@@ -4,6 +4,8 @@
 
 /* SENSOR ------------------------------------------------------------------ */
 
+static uint32_t button_status = 1;
+
 const struct sensors_sensor externbutton_sensor;
 
 static struct timer externbutton_debouncetimer;
@@ -53,13 +55,11 @@ SENSORS_SENSOR(externbutton_sensor, "ExternButton", value_externbutton, configur
 /* RESOURCE ---------------------------------------------------------------- */
 
 void button_resource_handler(void* request, void* response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset) {
-  uint8_t result = 1; 
-
   int length = 0;
   
   uint8_t source_string[LEN_SENML_BUTTON]; // {"bn":"/btn","bu":"B","e":[{"v":"%d"}]}
   flash_getVar(source_string, RES_SENML_BUTTON, LEN_SENML_BUTTON);
-  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, result);
+  length = snprintf(buffer, REST_MAX_CHUNK_SIZE, source_string, button_status);
 
   REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
   REST.set_response_payload(response, buffer, length);

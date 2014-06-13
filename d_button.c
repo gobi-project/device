@@ -25,6 +25,8 @@ PROCESS_THREAD(event_listener, ev, data) {
     if (ev == sensors_event) {
       if (data == &externbutton_sensor) {
         res_btn.trigger();
+        if (button_status == 1) button_status = 0;
+        else button_status = 1;
         PRINTF("extern button\n");
       }
     }
