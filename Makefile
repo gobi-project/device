@@ -1,8 +1,8 @@
 LIBMC1322X = ../libmc1322x
 CONTIKI = ../contiki
 
-CONTIKI_PROJECT = d_button d_socket d_temperature d_led d_rgb d_lux d_dht d_test
-DEVICES = db1 db2 da6 da7 da8 d28 d29 d25 d13 d30 d31 d19
+CONTIKI_PROJECT = d_temperature_eee-droze d_temperature_eee-sleep# d_button d_socket d_temperature d_led d_rgb d_lux d_dht d_test
+DEVICES = de1 de2# db1 db2 da6 da7 da8 d28 d29 d25 d13 d30 d31 d19
 TARGET = econotag
 CLEAN = *.d d*_$(TARGET).bin d*_$(TARGET).txt d*_$(TARGET).pbm
 
