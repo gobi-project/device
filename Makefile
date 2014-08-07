@@ -4,7 +4,7 @@ CONTIKI = ../contiki
 CONTIKI_PROJECT = d_button d_socket d_temperature d_led d_rgb d_lux d_dht d_test
 DEVICES = db1 db2 da6 da7 da8 d28 d29 d25 d13 d30 d31 d19
 TARGET = econotag
-CLEAN = *.d d*_$(TARGET).bin d*_$(TARGET).txt d*_$(TARGET).pbm
+CLEAN = *.d d*_$(TARGET).bin d*_$(TARGET).txt d*_$(TARGET).pbm cfg-parser/cfg_parser.o cfg-parser/cfg_parser
 
 all: $(CONTIKI_PROJECT) blast
 
@@ -65,7 +65,10 @@ endif
 listen:
 	while true; do cat /dev/ttyUSB1; done
 
-list:
-	cat devices.txt
+list: cfg-parser/cfg_parser
+	cfg-parser/cfg_parser .
+
+cfg-parser/cfg_parser: cfg-parser/cfg_parser.c
+	make -C cfg-parser
 
 include $(CONTIKI)/Makefile.include
